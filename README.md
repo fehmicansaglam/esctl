@@ -10,6 +10,16 @@ esctl is a command-line interface (CLI) tool for easily retrieving read-only inf
 - List all indices available in the Elasticsearch cluster.
 - Get detailed information about shards, including their sizes and placement.
 
+## Contributing
+
+Thank you for your interest in contributing to esctl! While I don't accept pull requests at the moment, I encourage you to open issues for bug reports, feature requests, or any other suggestions you may have. Your feedback helps me improve the tool.
+
+When opening an issue, please provide as much information as possible, including steps to reproduce the problem or a detailed description of the requested feature. This will help me better understand and address the issue or request.
+
+I aim to have monthly releases where I address the reported issues and include requested features. While I can't guarantee immediate fixes, your reported issues will be considered for upcoming releases. I appreciate your patience and understanding in this regard.
+
+I value your contributions and feedback, and I'm grateful for your support in making esctl better!
+
 ## Usage
 
 esctl get nodes
@@ -28,12 +38,22 @@ Please note that the 'get' command only provides read-only access and does not s
 
 ## Installation
 
-To install esctl, you need to have Go installed and set up. Then, you can use the following command:
+To install `esctl`, ensure that you have Go installed and set up in your development environment. Then, follow the steps below:
 
-```shell
-go get github.com/fehmicansaglam/esctl
-```
+1. Open a terminal or command prompt.
+
+2. Run the following command to install `esctl`:
+
+   ```shell
+   go install github.com/fehmicansaglam/esctl
+   ```
+   This command will fetch the source code from the GitHub repository, compile it, and install the `esctl` binary in your Go workspace's `bin` directory.
+
+3. Make sure that your Go workspace's `bin` directory is added to your system's `PATH` environment variable. This step will allow you to run `esctl` from any directory in the terminal or command prompt.
+
+Once installed, you can run `esctl` by simply typing `esctl` in the terminal or command prompt.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
