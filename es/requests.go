@@ -39,18 +39,18 @@ func GetIndices(host string, port int) ([]Index, error) {
 }
 
 type Shard struct {
-	Index        string `json:"index"`
-	Shard        string `json:"shard"`
-	PriRep       string `json:"prirep"`
-	State        string `json:"state"`
-	Docs         string `json:"docs"`
-	Store        string `json:"store"`
-	IP           string `json:"ip"`
-	ID           string `json:"id"`
-	Node         string `json:"node"`
-	Unassigned   string `json:"unassigned.reason"`
-	UnassignedAt string `json:"unassigned.at"`
-	Segments     string `json:"segments.count"`
+	Index            string `json:"index"`
+	Shard            string `json:"shard"`
+	PriRep           string `json:"prirep"`
+	State            string `json:"state"`
+	Docs             string `json:"docs"`
+	Store            string `json:"store"`
+	IP               string `json:"ip"`
+	ID               string `json:"id"`
+	Node             string `json:"node"`
+	UnassignedReason string `json:"unassigned.reason"`
+	UnassignedAt     string `json:"unassigned.at"`
+	SegmentsCount    string `json:"segments.count"`
 }
 
 func GetShards(host string, port int, index string) ([]Shard, error) {

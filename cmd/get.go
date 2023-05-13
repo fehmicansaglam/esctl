@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
+	"text/tabwriter"
 
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
@@ -10,11 +14,14 @@ import (
 )
 
 var (
-	indexName        string
-	startedFlag      bool
-	relocatingFlag   bool
-	initializingFlag bool
-	unassignedFlag   bool
+	flagIndex        string
+	flagShard        int
+	flagPrimary      bool
+	flagReplica      bool
+	flagStarted      bool
+	flagRelocating   bool
+	flagInitializing bool
+	flagUnassigned   bool
 )
 
 var getCmd = &cobra.Command{
@@ -86,39 +93,68 @@ func handleIndexLogic() {
 }
 
 func handleShardLogic() {
-	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, indexName)
+	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
 
 	if err != nil {
 		panic(err)
 	}
 
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	defer w.Flush()
+
+	fmt.Fprintln(w, "INDEX\tID\tSHARD\tPRI_REP\tSTATE\tDOCS\tSTORE\tIP\tNODE\tUNASSIGNED_REASON\tUNASSIGNED_AT\tSEGMENTS_COUNT")
+
 	for _, shard := range shards {
-		includeShard := false
-
+		includeShardByState := false
 		switch {
-		case startedFlag && shard.State == constants.ShardStateStarted:
-			includeShard = true
-		case relocatingFlag && shard.State == constants.ShardStateRelocating:
-			includeShard = true
-		case initializingFlag && shard.State == constants.ShardStateInitializing:
-			includeShard = true
-		case unassignedFlag && shard.State == constants.ShardStateUnassigned:
-			includeShard = true
-		case !startedFlag && !relocatingFlag && !initializingFlag && !unassignedFlag:
-			includeShard = true
+		case flagStarted && shard.State == constants.ShardStateStarted:
+			includeShardByState = true
+		case flagRelocating && shard.State == constants.ShardStateRelocating:
+			includeShardByState = true
+		case flagInitializing && shard.State == constants.ShardStateInitializing:
+			includeShardByState = true
+		case flagUnassigned && shard.State == constants.ShardStateUnassigned:
+			includeShardByState = true
+		case !flagStarted && !flagRelocating && !flagInitializing && !flagUnassigned:
+			includeShardByState = true
 		}
 
-		if includeShard {
-			fmt.Println(shard.Index, shard.ID, shard.PriRep, shard.Shard, shard.IP, shard.State)
+		shardNumber, err := strconv.Atoi(shard.Shard)
+		if err != nil {
+			panic(err)
 		}
+		includeShardByNumber := (flagShard == -1 || flagShard == shardNumber)
+
+		includeShardByPriRep := (flagPrimary && shard.PriRep == constants.ShardPrimary) ||
+			(flagReplica && shard.PriRep == constants.ShardReplica) ||
+			(!flagPrimary && !flagReplica)
+
+		if includeShardByState && includeShardByNumber && includeShardByPriRep {
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+				shard.Index, shard.ID, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount)
+		}
+	}
+}
+
+func humanizePriRep(priRep string) string {
+	switch priRep {
+	case constants.ShardPrimary:
+		return "primary"
+	case constants.ShardReplica:
+		return "replica"
+	default:
+		return priRep
 	}
 }
 
 func init() {
 	rootCmd.AddCommand(getCmd)
-	getCmd.Flags().StringVar(&indexName, "index", "", "Name of the index")
-	getCmd.Flags().BoolVar(&startedFlag, "started", false, "Filter shards in STARTED state")
-	getCmd.Flags().BoolVar(&relocatingFlag, "relocating", false, "Filter shards in RELOCATING state")
-	getCmd.Flags().BoolVar(&initializingFlag, "initializing", false, "Filter shards in INITIALIZING state")
-	getCmd.Flags().BoolVar(&unassignedFlag, "unassigned", false, "Filter shards in UNASSIGNED state")
+	getCmd.Flags().StringVar(&flagIndex, "index", "", "Name of the index")
+	getCmd.Flags().IntVar(&flagShard, "shard", -1, "Filter shards by shard number")
+	getCmd.Flags().BoolVar(&flagPrimary, "primary", false, "Filter primary shards")
+	getCmd.Flags().BoolVar(&flagReplica, "replica", false, "Filter replica shards")
+	getCmd.Flags().BoolVar(&flagStarted, "started", false, "Filter shards in STARTED state")
+	getCmd.Flags().BoolVar(&flagRelocating, "relocating", false, "Filter shards in RELOCATING state")
+	getCmd.Flags().BoolVar(&flagInitializing, "initializing", false, "Filter shards in INITIALIZING state")
+	getCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
 }

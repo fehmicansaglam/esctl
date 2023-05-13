@@ -9,9 +9,14 @@ const (
 	EntityShards  = "shards"
 )
 
-const ( // Shard states
+const (
 	ShardStateStarted      = "STARTED"
 	ShardStateRelocating   = "RELOCATING"
 	ShardStateInitializing = "INITIALIZING"
 	ShardStateUnassigned   = "UNASSIGNED"
+)
+
+const (
+	ShardPrimary = "p"
+	ShardReplica = "r"
 )
