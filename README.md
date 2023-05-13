@@ -30,9 +30,28 @@ esctl get indices
 
 Retrieves a list of all indices in the Elasticsearch cluster.
 
-esctl get shards
+### Get Shards
 
-Retrieves detailed information about shards in the Elasticsearch cluster.
+To retrieve shards from Elasticsearch, you can use the following command:
+
+```shell
+esctl get shards [--index <index_name>] [--started] [--relocating] [--initializing] [--unassigned]
+```
+
+* `--index <index_name>`: Specifies the name of the index to retrieve shards from.
+* `--started`: Filters shards in the STARTED state.
+* `--relocating`: Filters shards in the RELOCATING state.
+* `--initializing`: Filters shards in the INITIALIZING state.
+* `--unassigned`: Filters shards in the UNASSIGNED state.
+
+If none of the flags are provided, all shards will be returned.
+
+Example usage:
+
+```shell
+esctl get shards --index my_index --relocating
+```
+This will retrieve only the shards that are currently relocating for the specified index.
 
 Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.
 
