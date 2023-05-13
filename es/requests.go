@@ -54,7 +54,13 @@ type Shard struct {
 }
 
 func GetShards(host string, port int, index string) ([]Shard, error) {
-	url := fmt.Sprintf("http://%s:%d/_cat/shards/%s?format=json&h=index,shard,prirep,state,docs,store,ip,id,node,unassigned.reason,unassigned.at,segments.count", host, port, index)
+	url := fmt.Sprintf("http://%s:%d/_cat/shards", host, port)
+
+	if index != "" {
+		url += fmt.Sprintf("/%s", index)
+	}
+
+	url += "?format=json&h=index,shard,prirep,state,docs,store,ip,id,node,unassigned.reason,unassigned.at,segments.count"
 
 	var shards []Shard
 	err := getJSONResponse(url, &shards)

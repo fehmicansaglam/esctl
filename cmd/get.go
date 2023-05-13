@@ -9,6 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	indexName        string
+	startedFlag      bool
+	relocatingFlag   bool
+	initializingFlag bool
+	unassignedFlag   bool
+)
+
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Get Elasticsearch entities",
@@ -44,7 +52,6 @@ Please note that the 'get' command only provides read-only access and does not s
 
 		entity := args[0]
 
-		// Check entity variations
 		switch entity {
 		case constants.EntityNode, constants.EntityNodes:
 			// Retrieve and display information about Elasticsearch nodes
@@ -79,25 +86,39 @@ func handleIndexLogic() {
 }
 
 func handleShardLogic() {
-	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, "articles")
+	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, indexName)
+
 	if err != nil {
 		panic(err)
 	}
+
 	for _, shard := range shards {
-		fmt.Println(shard.ID, shard.PriRep, shard.Shard, shard.IP, shard.State)
+		includeShard := false
+
+		switch {
+		case startedFlag && shard.State == constants.ShardStateStarted:
+			includeShard = true
+		case relocatingFlag && shard.State == constants.ShardStateRelocating:
+			includeShard = true
+		case initializingFlag && shard.State == constants.ShardStateInitializing:
+			includeShard = true
+		case unassignedFlag && shard.State == constants.ShardStateUnassigned:
+			includeShard = true
+		case !startedFlag && !relocatingFlag && !initializingFlag && !unassignedFlag:
+			includeShard = true
+		}
+
+		if includeShard {
+			fmt.Println(shard.Index, shard.ID, shard.PriRep, shard.Shard, shard.IP, shard.State)
+		}
 	}
 }
 
 func init() {
 	rootCmd.AddCommand(getCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	getCmd.Flags().StringVar(&indexName, "index", "", "Name of the index")
+	getCmd.Flags().BoolVar(&startedFlag, "started", false, "Filter shards in STARTED state")
+	getCmd.Flags().BoolVar(&relocatingFlag, "relocating", false, "Filter shards in RELOCATING state")
+	getCmd.Flags().BoolVar(&initializingFlag, "initializing", false, "Filter shards in INITIALIZING state")
+	getCmd.Flags().BoolVar(&unassignedFlag, "unassigned", false, "Filter shards in UNASSIGNED state")
 }
