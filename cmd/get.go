@@ -103,9 +103,15 @@ func handleIndexLogic() {
 	if err != nil {
 		panic(err)
 	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	defer w.Flush()
+
+	fmt.Fprintln(w, "HEALTH\tSTATUS\tINDEX\tUUID\tPRI\tREP\tDOCS-COUNT\tDOCS-DELETED\tCREATION-DATE\tSTORE-SIZE\tPRI-STORE-SIZE")
+
 	for _, index := range indices {
-		fmt.Println("Index\tHealth\tShards\tReplicas")
-		fmt.Printf("%-9s(%s):\t%s\tshards,\t%s\treplicas. %s docs, %s\n", index.Index, index.Health, index.Shards, index.Replicas, index.DocsCount, index.StoreSize)
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			index.Health, index.Status, index.Index, index.UUID, index.Pri, index.Rep,
+			index.DocsCount, index.DocsDeleted, index.CreationDate, index.StoreSize, index.PriStoreSize)
 	}
 }
 
