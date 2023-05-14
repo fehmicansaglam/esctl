@@ -22,6 +22,9 @@ I value your contributions and feedback, and I'm grateful for your support in ma
 
 ## Usage
 
+* `--host <elasticsearch_host>`: Specify the Elasticsearch host. Default is localhost.
+* `--port <elasticsearch_port>`: Specify the Elasticsearch port. Default is 9200.
+
 ### Get Nodes
 
 ```shell
@@ -62,7 +65,7 @@ esctl get shards --index my_index --relocating
 ```
 This will retrieve only the shards that are currently relocating for the specified index.
 
-Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.
+Please note that the `get` command only provides read-only access and does not support data querying or modification operations.
 
 ## Installation
 
