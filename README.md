@@ -22,12 +22,18 @@ I value your contributions and feedback, and I'm grateful for your support in ma
 
 ## Usage
 
-esctl get nodes
+### Get Nodes
 
+```shell
+esctl get nodes
+```
 Retrieves a list of all nodes in the Elasticsearch cluster.
 
-esctl get indices
+### Get Indices
 
+```shell
+esctl get indices
+```
 Retrieves a list of all indices in the Elasticsearch cluster.
 
 ### Get Shards
@@ -39,6 +45,9 @@ esctl get shards [--index <index_name>] [--shard <shard>] [--primary] [--replica
 ```
 
 * `--index <index_name>`: Specifies the name of the index to retrieve shards from.
+* `--shard <shard>`: Filters shards by shard number.
+* `--primary`: Filters primary shards.
+* `--replica`: Filters replica shards.
 * `--started`: Filters shards in the STARTED state.
 * `--relocating`: Filters shards in the RELOCATING state.
 * `--initializing`: Filters shards in the INITIALIZING state.

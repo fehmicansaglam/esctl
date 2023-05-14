@@ -50,6 +50,12 @@ Examples:
 	esctl get shards
 	Retrieves detailed information about shards in the Elasticsearch cluster.
 
+	esctl get shards --index my_index
+	Retrieve shard information for an index.
+
+	esctl get shards --started --relocating
+	Retrieve shard information filtered by state.
+
 Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
@@ -61,7 +67,6 @@ Please note that the 'get' command only provides read-only access and does not s
 
 		switch entity {
 		case constants.EntityNode, constants.EntityNodes:
-			// Retrieve and display information about Elasticsearch nodes
 			// Your logic for handling the "node" entity goes here
 			handleNodeLogic()
 		case constants.EntityIndex, constants.EntityIndices:
@@ -77,8 +82,20 @@ Please note that the 'get' command only provides read-only access and does not s
 }
 
 func handleNodeLogic() {
-	// Logic for handling node-related functionality
-	fmt.Println("Getting information about Elasticsearch nodes...")
+	nodes, err := es.GetNodes(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	if err != nil {
+		panic(err)
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	defer w.Flush()
+
+	fmt.Fprintln(w, "NAME\tIP\tNODE-ROLE\tMASTER\tHEAP-MAX\tHEAP-CURRENT\tHEAP-PERCENT\tCPU\tLOAD-1M\tDISK-TOTAL\tDISK-USED\tDISK-AVAILABLE")
+
+	for _, node := range nodes {
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s%%\t%s%%\t%s\t%s\t%s\t%s\n",
+			node.Name, node.IP, node.NodeRole, node.Master, node.HeapMax, node.HeapCurrent, node.HeapPercent,
+			node.CPU, node.Load1m, node.DiskTotal, node.DiskUsed, node.DiskAvail)
+	}
 }
 
 func handleIndexLogic() {
@@ -102,7 +119,7 @@ func handleShardLogic() {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	defer w.Flush()
 
-	fmt.Fprintln(w, "INDEX\tID\tSHARD\tPRI_REP\tSTATE\tDOCS\tSTORE\tIP\tNODE\tUNASSIGNED_REASON\tUNASSIGNED_AT\tSEGMENTS_COUNT")
+	fmt.Fprintln(w, "INDEX\tID\tSHARD\tPRI-REP\tSTATE\tDOCS\tSTORE\tIP\tNODE\tUNASSIGNED-REASON\tUNASSIGNED-AT\tSEGMENTS-COUNT")
 
 	for _, shard := range shards {
 		includeShardByState := false
