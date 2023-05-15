@@ -36,6 +36,7 @@ Available Entities:
 	- nodes: List all nodes in the Elasticsearch cluster.
 	- indices: List all indices in the Elasticsearch cluster.
 	- shards: List detailed information about shards, including their sizes and placement.
+	- aliases: List all aliases in the Elasticsearch cluster.
 
 Options:
 	[entity] - Specifies the entity type to retrieve. Supports 'nodes', 'indices', and 'shards'.
@@ -56,6 +57,9 @@ Examples:
 	esctl get shards --started --relocating
 	Retrieve shard information filtered by state.
 
+	esctl get aliases
+	Retrieve all aliases.
+
 Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
@@ -67,12 +71,13 @@ Please note that the 'get' command only provides read-only access and does not s
 
 		switch entity {
 		case constants.EntityNode, constants.EntityNodes:
-			// Your logic for handling the "node" entity goes here
 			handleNodeLogic()
 		case constants.EntityIndex, constants.EntityIndices:
 			handleIndexLogic()
 		case constants.EntityShard, constants.EntityShards:
 			handleShardLogic()
+		case constants.EntityAlias, constants.EntityAliases:
+			handleAliasLogic()
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			fmt.Println("Supported entities: node(s), index(es), shard(s)")
@@ -167,6 +172,21 @@ func humanizePriRep(priRep string) string {
 		return "replica"
 	default:
 		return priRep
+	}
+}
+
+func handleAliasLogic() {
+	aliases, err := es.GetAliases(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
+	if err != nil {
+		panic(err)
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	defer w.Flush()
+
+	fmt.Fprintln(w, "ALIAS\tINDEX")
+
+	for alias, index := range aliases {
+		fmt.Fprintf(w, "%s\t%s\n", alias, index)
 	}
 }
 

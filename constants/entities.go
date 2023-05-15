@@ -2,11 +2,13 @@ package constants
 
 const (
 	EntityNode    = "node"
-	EntityIndex   = "index"
-	EntityShard   = "shard"
 	EntityNodes   = "nodes"
+	EntityIndex   = "index"
 	EntityIndices = "indices"
+	EntityShard   = "shard"
 	EntityShards  = "shards"
+	EntityAlias   = "alias"
+	EntityAliases = "aliases"
 )
 
 const (

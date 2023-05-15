@@ -42,21 +42,25 @@ Alternatively, you can set the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` env
 
 If the `--host` and `--port` flags are not provided and the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables are not set, `esctl` will default to `localhost` and `9200`, respectively.
 
-### Get Nodes
+### Get
+
+Please note that the `get` command only provides read-only access and does not support data querying or modification operations.
+
+#### Get Nodes
 
 ```shell
 esctl get nodes
 ```
 Retrieves a list of all nodes in the Elasticsearch cluster.
 
-### Get Indices
+#### Get Indices
 
 ```shell
 esctl get indices
 ```
 Retrieves a list of all indices in the Elasticsearch cluster.
 
-### Get Shards
+#### Get Shards
 
 To retrieve shards from Elasticsearch, you can use the following command:
 
@@ -82,7 +86,18 @@ esctl get shards --index my_index --relocating
 ```
 This will retrieve only the shards that are currently relocating for the specified index.
 
-Please note that the `get` command only provides read-only access and does not support data querying or modification operations.
+#### Get Aliases
+Retrieves the list of aliases defined in Elasticsearch, including the index names they are associated with.
+
+Usage:
+
+```shell
+esctl get aliases [--index <index_name>]
+```
+
+Options:
+
+`--index`: (optional) Filter the aliases by a specific index. If not provided, aliases from all indices will be returned.
 
 ## Installation
 
