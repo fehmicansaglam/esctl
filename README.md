@@ -22,8 +22,25 @@ I value your contributions and feedback, and I'm grateful for your support in ma
 
 ## Usage
 
-* `--host <elasticsearch_host>`: Specify the Elasticsearch host. Default is localhost.
-* `--port <elasticsearch_port>`: Specify the Elasticsearch port. Default is 9200.
+### Elasticsearch Host Configuration
+
+`esctl` allows you to configure the Elasticsearch host and port using the `--host` and `--port` flags or the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables. By default, the host is set to `localhost` and the port is set to `9200`.
+
+To specify a custom host, you can use the `--host` flag followed by the desired host value. For example:
+
+```shell
+esctl --host=<your_host> <command>
+```
+
+Similarly, to specify a custom port, you can use the `--port` flag followed by the desired port value. For example:
+
+```shell
+esctl --port=<your_port> <command>
+```
+
+Alternatively, you can set the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables to your desired Elasticsearch host and port, respectively. If the `--host` and `--port` flags are not provided and the corresponding environment variables are set, `esctl` will use the values from the environment variables as the host and port.
+
+If the `--host` and `--port` flags are not provided and the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables are not set, `esctl` will default to `localhost` and `9200`, respectively.
 
 ### Get Nodes
 
