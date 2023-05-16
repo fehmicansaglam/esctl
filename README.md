@@ -11,6 +11,41 @@ esctl is a command-line interface (CLI) tool for easily retrieving read-only inf
 - Get detailed information about shards, including their sizes and placement.
 - Omit empty columns: When displaying data in tabular format, esctl automatically omits any columns that are completely empty (other than the header). This helps to keep the output concise and focused on the data that is actually present.
 
+## Examples
+
+```shell
+> esctl get shards --index=articles --primary
+INDEX     ID                      SHARD  PRI-REP  STATE    DOCS  STORE  IP         NODE               SEGMENTS-COUNT
+articles  jxn-Oa3XSPigaCBYt9fKiw  0      primary  STARTED  0     225b   127.0.0.1  es-data-0          0
+articles  jxn-Oa3XSPigaCBYt9fKiw  1      primary  STARTED  0     225b   127.0.0.1  es-data-0          0
+articles  jxn-Oa3XSPigaCBYt9fKiw  2      primary  STARTED  0     225b   127.0.0.1  es-data-0          0
+```
+
+```shell
+> esctl get shards --index=articles --shard 0 --unassigned
+INDEX     SHARD  PRI-REP  STATE       UNASSIGNED-REASON  UNASSIGNED-AT
+articles  0      replica  UNASSIGNED  CLUSTER_RECOVERED  2023-05-07T20:37:07.520Z
+articles  0      replica  UNASSIGNED  CLUSTER_RECOVERED  2023-05-07T20:37:07.520Z
+```
+
+```shell
+> esctl get indices
+HEALTH  STATUS  INDEX     UUID                    PRI  REP  DOCS-COUNT  DOCS-DELETED  CREATION-DATE             STORE-SIZE  PRI-STORE-SIZE
+yellow  open    articles  8vCars4rQquYHNhpKV2fow  3    2    0           0             2023-05-07T19:17:52.259Z  675b        675b
+```
+
+```shell
+>esctl get nodes
+NAME               IP         NODE-ROLE    MASTER  HEAP-MAX  HEAP-CURRENT  HEAP-PERCENT  CPU  LOAD-1M  DISK-TOTAL  DISK-USED  DISK-AVAILABLE
+es-data-0          127.0.0.1  cdfhilmrstw  *       4gb       1.6gb         41%           10%  2.02     232.9gb     199.2gb    33.6gb
+```
+
+```shell
+>esctl get aliases --index=articles
+ALIAS           INDEX
+articles_alias  articles
+```
+
 ## Contributing
 
 Thank you for your interest in contributing to esctl! While I don't accept pull requests at the moment, I encourage you to open issues for bug reports, feature requests, or any other suggestions you may have. Your feedback helps me improve the tool.
