@@ -35,13 +35,13 @@ yellow  open    articles  8vCars4rQquYHNhpKV2fow  3    2    0           0       
 ```
 
 ```shell
->esctl get nodes
+> esctl get nodes
 NAME               IP         NODE-ROLE    MASTER  HEAP-MAX  HEAP-CURRENT  HEAP-PERCENT  CPU  LOAD-1M  DISK-TOTAL  DISK-USED  DISK-AVAILABLE
 es-data-0          127.0.0.1  cdfhilmrstw  *       4gb       1.6gb         41%           10%  2.02     232.9gb     199.2gb    33.6gb
 ```
 
 ```shell
->esctl get aliases --index=articles
+> esctl get aliases --index=articles
 ALIAS           INDEX
 articles_alias  articles
 ```
