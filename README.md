@@ -9,6 +9,7 @@ esctl is a command-line interface (CLI) tool for easily retrieving read-only inf
 - Retrieve a list of all nodes in the Elasticsearch cluster.
 - List all indices available in the Elasticsearch cluster.
 - Get detailed information about shards, including their sizes and placement.
+- Omit empty columns: When displaying data in tabular format, esctl automatically omits any columns that are completely empty (other than the header). This helps to keep the output concise and focused on the data that is actually present.
 
 ## Contributing
 

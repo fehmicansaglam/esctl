@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strconv"
-
-	"text/tabwriter"
 
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/shared"
+	"github.com/fehmicansaglam/esctl/tabular"
 	"github.com/spf13/cobra"
 )
 
@@ -91,16 +89,20 @@ func handleNodeLogic() {
 	if err != nil {
 		panic(err)
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer w.Flush()
 
-	fmt.Fprintln(w, "NAME\tIP\tNODE-ROLE\tMASTER\tHEAP-MAX\tHEAP-CURRENT\tHEAP-PERCENT\tCPU\tLOAD-1M\tDISK-TOTAL\tDISK-USED\tDISK-AVAILABLE")
+	headers := []string{"NAME", "IP", "NODE-ROLE", "MASTER", "HEAP-MAX", "HEAP-CURRENT", "HEAP-PERCENT", "CPU", "LOAD-1M", "DISK-TOTAL", "DISK-USED", "DISK-AVAILABLE"}
+	data := [][]string{}
 
 	for _, node := range nodes {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s%%\t%s%%\t%s\t%s\t%s\t%s\n",
-			node.Name, node.IP, node.NodeRole, node.Master, node.HeapMax, node.HeapCurrent, node.HeapPercent,
-			node.CPU, node.Load1m, node.DiskTotal, node.DiskUsed, node.DiskAvail)
+		row := []string{
+			node.Name, node.IP, node.NodeRole, node.Master, node.HeapMax, node.HeapCurrent,
+			node.HeapPercent + "%", node.CPU + "%", node.Load1m,
+			node.DiskTotal, node.DiskUsed, node.DiskAvail,
+		}
+		data = append(data, row)
 	}
+
+	tabular.PrintTable(headers, data)
 }
 
 func handleIndexLogic() {
@@ -108,29 +110,29 @@ func handleIndexLogic() {
 	if err != nil {
 		panic(err)
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer w.Flush()
 
-	fmt.Fprintln(w, "HEALTH\tSTATUS\tINDEX\tUUID\tPRI\tREP\tDOCS-COUNT\tDOCS-DELETED\tCREATION-DATE\tSTORE-SIZE\tPRI-STORE-SIZE")
+	headers := []string{"HEALTH", "STATUS", "INDEX", "UUID", "PRI", "REP", "DOCS-COUNT", "DOCS-DELETED", "CREATION-DATE", "STORE-SIZE", "PRI-STORE-SIZE"}
+	data := [][]string{}
 
 	for _, index := range indices {
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		row := []string{
 			index.Health, index.Status, index.Index, index.UUID, index.Pri, index.Rep,
-			index.DocsCount, index.DocsDeleted, index.CreationDate, index.StoreSize, index.PriStoreSize)
+			index.DocsCount, index.DocsDeleted, index.CreationDate, index.StoreSize, index.PriStoreSize,
+		}
+		data = append(data, row)
 	}
+
+	tabular.PrintTable(headers, data)
 }
 
 func handleShardLogic() {
 	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
-
 	if err != nil {
 		panic(err)
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer w.Flush()
-
-	fmt.Fprintln(w, "INDEX\tID\tSHARD\tPRI-REP\tSTATE\tDOCS\tSTORE\tIP\tNODE\tUNASSIGNED-REASON\tUNASSIGNED-AT\tSEGMENTS-COUNT")
+	headers := []string{"INDEX", "ID", "SHARD", "PRI-REP", "STATE", "DOCS", "STORE", "IP", "NODE", "UNASSIGNED-REASON", "UNASSIGNED-AT", "SEGMENTS-COUNT"}
+	data := [][]string{}
 
 	for _, shard := range shards {
 		includeShardByState := false
@@ -158,10 +160,14 @@ func handleShardLogic() {
 			(!flagPrimary && !flagReplica)
 
 		if includeShardByState && includeShardByNumber && includeShardByPriRep {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
-				shard.Index, shard.ID, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount)
+			row := []string{
+				shard.Index, shard.ID, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
+			}
+			data = append(data, row)
 		}
 	}
+
+	tabular.PrintTable(headers, data)
 }
 
 func humanizePriRep(priRep string) string {
@@ -180,14 +186,16 @@ func handleAliasLogic() {
 	if err != nil {
 		panic(err)
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-	defer w.Flush()
 
-	fmt.Fprintln(w, "ALIAS\tINDEX")
+	headers := []string{"ALIAS", "INDEX"}
+	data := [][]string{}
 
 	for alias, index := range aliases {
-		fmt.Fprintf(w, "%s\t%s\n", alias, index)
+		row := []string{alias, index}
+		data = append(data, row)
 	}
+
+	tabular.PrintTable(headers, data)
 }
 
 func init() {
