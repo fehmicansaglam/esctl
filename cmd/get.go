@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/fehmicansaglam/esctl/constants"
@@ -87,7 +88,8 @@ Please note that the 'get' command only provides read-only access and does not s
 func handleNodeLogic() {
 	nodes, err := es.GetNodes(shared.ElasticsearchHost, shared.ElasticsearchPort)
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stderr, "Failed to retrieve nodes:", err)
+		os.Exit(1)
 	}
 
 	headers := []string{"NAME", "IP", "NODE-ROLE", "MASTER", "HEAP-MAX", "HEAP-CURRENT", "HEAP-PERCENT", "CPU", "LOAD-1M", "DISK-TOTAL", "DISK-USED", "DISK-AVAILABLE"}
@@ -108,15 +110,16 @@ func handleNodeLogic() {
 func handleIndexLogic() {
 	indices, err := es.GetIndices(shared.ElasticsearchHost, shared.ElasticsearchPort)
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stderr, "Failed to retrieve indices:", err)
+		os.Exit(1)
 	}
 
-	headers := []string{"HEALTH", "STATUS", "INDEX", "UUID", "PRI", "REP", "DOCS-COUNT", "DOCS-DELETED", "CREATION-DATE", "STORE-SIZE", "PRI-STORE-SIZE"}
+	headers := []string{"INDEX", "UUID", "HEALTH", "STATUS", "SHARDS", "REPLICAS", "DOCS-COUNT", "DOCS-DELETED", "CREATION-DATE", "STORE-SIZE", "PRI-STORE-SIZE"}
 	data := [][]string{}
 
 	for _, index := range indices {
 		row := []string{
-			index.Health, index.Status, index.Index, index.UUID, index.Pri, index.Rep,
+			index.Index, index.UUID, index.Health, index.Status, index.Pri, index.Rep,
 			index.DocsCount, index.DocsDeleted, index.CreationDate, index.StoreSize, index.PriStoreSize,
 		}
 		data = append(data, row)
@@ -128,10 +131,11 @@ func handleIndexLogic() {
 func handleShardLogic() {
 	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stderr, "Failed to retrieve shards:", err)
+		os.Exit(1)
 	}
 
-	headers := []string{"INDEX", "ID", "SHARD", "PRI-REP", "STATE", "DOCS", "STORE", "IP", "NODE", "UNASSIGNED-REASON", "UNASSIGNED-AT", "SEGMENTS-COUNT"}
+	headers := []string{"INDEX", "SHARD", "PRI-REP", "STATE", "DOCS", "STORE", "IP", "NODE", "NODE-ID", "UNASSIGNED-REASON", "UNASSIGNED-AT", "SEGMENTS-COUNT"}
 	data := [][]string{}
 
 	for _, shard := range shards {
@@ -161,7 +165,7 @@ func handleShardLogic() {
 
 		if includeShardByState && includeShardByNumber && includeShardByPriRep {
 			row := []string{
-				shard.Index, shard.ID, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
+				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
 			}
 			data = append(data, row)
 		}
@@ -184,7 +188,8 @@ func humanizePriRep(priRep string) string {
 func handleAliasLogic() {
 	aliases, err := es.GetAliases(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stderr, "Failed to retrieve aliases:", err)
+		os.Exit(1)
 	}
 
 	headers := []string{"ALIAS", "INDEX"}
