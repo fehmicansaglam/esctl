@@ -108,7 +108,7 @@ func handleNodeLogic() {
 }
 
 func handleIndexLogic() {
-	indices, err := es.GetIndices(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	indices, err := es.GetIndices(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve indices:", err)
 		os.Exit(1)

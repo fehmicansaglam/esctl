@@ -16,8 +16,14 @@ type Index struct {
 	PriStoreSize string `json:"pri.store.size"`
 }
 
-func GetIndices(host string, port int) ([]Index, error) {
-	url := fmt.Sprintf("http://%s:%d/_cat/indices?format=json&h=health,status,index,uuid,pri,rep,docs.count,docs.deleted,creation.date.string,store.size,pri.store.size", host, port)
+func GetIndices(host string, port int, index string) ([]Index, error) {
+	url := fmt.Sprintf("http://%s:%d/_cat/indices", host, port)
+
+	if index != "" {
+		url += fmt.Sprintf("/%s", index)
+	}
+
+	url += "?format=json&h=health,status,index,uuid,pri,rep,docs.count,docs.deleted,creation.date.string,store.size,pri.store.size"
 
 	var indices []Index
 	if err := getJSONResponse(url, &indices); err != nil {
