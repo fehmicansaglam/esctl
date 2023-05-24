@@ -9,6 +9,8 @@ const (
 	EntityShards  = "shards"
 	EntityAlias   = "alias"
 	EntityAliases = "aliases"
+	EntityTask    = "task"
+	EntityTasks   = "tasks"
 )
 
 const (

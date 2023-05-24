@@ -59,6 +59,9 @@ Examples:
 	esctl get aliases
 	Retrieve all aliases.
 
+	esctl get tasks
+	Retrieve all tasks.
+
 Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
@@ -77,6 +80,8 @@ Please note that the 'get' command only provides read-only access and does not s
 			handleShardLogic()
 		case constants.EntityAlias, constants.EntityAliases:
 			handleAliasLogic()
+		case constants.EntityTask, constants.EntityTasks:
+			handleTaskLogic()
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			fmt.Println("Supported entities: node(s), index(es), shard(s)")
@@ -125,7 +130,7 @@ func handleIndexLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data)
+	tabular.PrintTable(headers, data, "INDEX")
 }
 
 func handleShardLogic() {
@@ -171,7 +176,7 @@ func handleShardLogic() {
 		}
 	}
 
-	tabular.PrintTable(headers, data)
+	tabular.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
 }
 
 func humanizePriRep(priRep string) string {
@@ -201,6 +206,26 @@ func handleAliasLogic() {
 	}
 
 	tabular.PrintTable(headers, data)
+}
+
+func handleTaskLogic() {
+	tasksResponse, err := es.GetTasks(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to retrieve tasks:", err)
+		os.Exit(1)
+	}
+
+	headers := []string{"NODE", "ID", "ACTION"}
+	data := [][]string{}
+
+	for _, node := range tasksResponse.Nodes {
+		for _, task := range node.Tasks {
+			row := []string{task.Node, fmt.Sprintf("%d", task.ID), task.Action}
+			data = append(data, row)
+		}
+	}
+
+	tabular.PrintTable(headers, data, "NODE", "ID")
 }
 
 func init() {
