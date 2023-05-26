@@ -84,17 +84,19 @@ Please note that the `get` command only provides read-only access and does not s
 
 #### Get Nodes
 
+Retrieves a list of all nodes in the Elasticsearch cluster.
+
 ```shell
 esctl get nodes
 ```
-Retrieves a list of all nodes in the Elasticsearch cluster.
 
 #### Get Indices
+
+Retrieves a list of all indices in the Elasticsearch cluster.
 
 ```shell
 esctl get indices
 ```
-Retrieves a list of all indices in the Elasticsearch cluster.
 
 #### Get Shards
 
@@ -134,6 +136,23 @@ esctl get aliases [--index <index_name>]
 Options:
 
 `--index`: (optional) Filter the aliases by a specific index. If not provided, aliases from all indices will be returned.
+
+#### Get Tasks
+
+The `get tasks` command retrieves information about tasks in the Elasticsearch cluster.
+
+Usage:
+
+```shell
+esctl get tasks [--actions <actions>...]
+```
+
+Example:
+
+```shell
+esctl get tasks --actions 'index*' --actions '*search*'
+
+```
 
 ## Installation
 

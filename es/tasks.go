@@ -1,6 +1,10 @@
 package es
 
-import "fmt"
+import (
+	"net/url"
+	"strconv"
+	"strings"
+)
 
 type TasksResponse struct {
 	Nodes map[string]TaskNode `json:"nodes"`
@@ -29,11 +33,20 @@ type Task struct {
 	Headers            map[string]interface{} `json:"headers"`
 }
 
-func GetTasks(host string, port int) (TasksResponse, error) {
-	url := fmt.Sprintf("http://%s:%d/_tasks", host, port)
+func GetTasks(host string, port int, actions []string) (TasksResponse, error) {
+	u := &url.URL{
+		Scheme: "http",
+		Host:   host + ":" + strconv.Itoa(port),
+		Path:   "/_tasks",
+	}
+
+	if len(actions) > 0 {
+		actionsParam := strings.Join(actions, ",")
+		u.RawQuery = url.Values{"actions": {actionsParam}}.Encode()
+	}
 
 	var response TasksResponse
-	if err := getJSONResponse(url, &response); err != nil {
+	if err := getJSONResponse(u.String(), &response); err != nil {
 		return TasksResponse{}, err
 	}
 

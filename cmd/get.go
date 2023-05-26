@@ -21,6 +21,7 @@ var (
 	flagRelocating   bool
 	flagInitializing bool
 	flagUnassigned   bool
+	flagActions      []string
 )
 
 var getCmd = &cobra.Command{
@@ -36,6 +37,7 @@ Available Entities:
 	- indices: List all indices in the Elasticsearch cluster.
 	- shards: List detailed information about shards, including their sizes and placement.
 	- aliases: List all aliases in the Elasticsearch cluster.
+	- tasks: List all tasks in the Elasticsearch cluster.
 
 Options:
 	[entity] - Specifies the entity type to retrieve. Supports 'nodes', 'indices', and 'shards'.
@@ -58,6 +60,9 @@ Examples:
 
 	esctl get aliases
 	Retrieve all aliases.
+
+	esctl get tasks --actions 'index*' --actions '*search*'
+	Retrieve tasks filtered by actions using wildcard patterns.
 
 	esctl get tasks
 	Retrieve all tasks.
@@ -209,7 +214,7 @@ func handleAliasLogic() {
 }
 
 func handleTaskLogic() {
-	tasksResponse, err := es.GetTasks(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	tasksResponse, err := es.GetTasks(shared.ElasticsearchHost, shared.ElasticsearchPort, flagActions)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve tasks:", err)
 		os.Exit(1)
@@ -238,4 +243,5 @@ func init() {
 	getCmd.Flags().BoolVar(&flagRelocating, "relocating", false, "Filter shards in RELOCATING state")
 	getCmd.Flags().BoolVar(&flagInitializing, "initializing", false, "Filter shards in INITIALIZING state")
 	getCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
+	getCmd.Flags().StringSliceVar(&flagActions, "actions", []string{}, "Filter tasks by actions")
 }
