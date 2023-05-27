@@ -22,6 +22,7 @@ var (
 	flagInitializing bool
 	flagUnassigned   bool
 	flagActions      []string
+	flagSort         []string
 )
 
 var getCmd = &cobra.Command{
@@ -114,7 +115,7 @@ func handleNodeLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data)
+	tabular.PrintTable(headers, data, flagSort...)
 }
 
 func handleIndexLogic() {
@@ -135,7 +136,11 @@ func handleIndexLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data, "INDEX")
+	if len(flagSort) > 0 {
+		tabular.PrintTable(headers, data, flagSort...)
+	} else {
+		tabular.PrintTable(headers, data, "INDEX")
+	}
 }
 
 func handleShardLogic() {
@@ -181,7 +186,11 @@ func handleShardLogic() {
 		}
 	}
 
-	tabular.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
+	if len(flagSort) > 0 {
+		tabular.PrintTable(headers, data, flagSort...)
+	} else {
+		tabular.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
+	}
 }
 
 func humanizePriRep(priRep string) string {
@@ -210,7 +219,7 @@ func handleAliasLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data)
+	tabular.PrintTable(headers, data, flagSort...)
 }
 
 func handleTaskLogic() {
@@ -230,7 +239,11 @@ func handleTaskLogic() {
 		}
 	}
 
-	tabular.PrintTable(headers, data, "NODE", "ID")
+	if len(flagSort) > 0 {
+		tabular.PrintTable(headers, data, flagSort...)
+	} else {
+		tabular.PrintTable(headers, data, "NODE", "ID")
+	}
 }
 
 func init() {
@@ -244,4 +257,5 @@ func init() {
 	getCmd.Flags().BoolVar(&flagInitializing, "initializing", false, "Filter shards in INITIALIZING state")
 	getCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
 	getCmd.Flags().StringSliceVar(&flagActions, "actions", []string{}, "Filter tasks by actions")
+	getCmd.Flags().StringSliceVar(&flagSort, "sort", []string{}, "Columns to sort by (comma-separated)")
 }

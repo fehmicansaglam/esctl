@@ -80,7 +80,33 @@ If the `--host` and `--port` flags are not provided and the `ELASTICSEARCH_HOST`
 
 ### Get
 
-Please note that the `get` command only provides read-only access and does not support data querying or modification operations.
+The `get` command allows you to retrieve information about Elasticsearch entities. Supported entities include nodes, indices, shards, aliases, and tasks. This command provides a read-only view of the cluster and does not support data querying.
+
+```shell
+esctl get [entity] [flags]
+```
+
+#### Available Entities
+
+- `nodes`: List all nodes in the Elasticsearch cluster.
+- `indices`: List all indices in the Elasticsearch cluster.
+- `shards`: List detailed information about shards, including their sizes and placement.
+- `aliases`: List all aliases in the Elasticsearch cluster.
+- `tasks`: List all tasks in the Elasticsearch cluster.
+
+#### Flags
+
+- `--index`: Specifies the name of the index (applies to `indices` and `shards` entities).
+- `--shard`: Filters shards by shard number (applies to `shards` entity).
+- `--primary`: Filters primary shards (applies to `shards` entity).
+- `--replica`: Filters replica shards (applies to `shards` entity).
+- `--started`: Filters shards in STARTED state (applies to `shards` entity).
+- `--relocating`: Filters shards in RELOCATING state (applies to `shards` entity).
+- `--initializing`: Filters shards in INITIALIZING state (applies to `shards` entity).
+- `--unassigned`: Filters shards in UNASSIGNED state (applies to `shards` entity).
+- `--actions`: Filters tasks by actions (applies to `tasks` entity).
+- `--sort`: Specifies the columns to sort by, separated by commas (applies to all entities).
+
 
 #### Get Nodes
 
@@ -125,6 +151,7 @@ esctl get shards --index my_index --relocating
 This will retrieve only the shards that are currently relocating for the specified index.
 
 #### Get Aliases
+
 Retrieves the list of aliases defined in Elasticsearch, including the index names they are associated with.
 
 Usage:
