@@ -1,15 +1,15 @@
 # esctl
 
-esctl is a command-line interface (CLI) tool for easily retrieving read-only information about Elasticsearch clusters, including nodes, indices, and shards.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/fehmicansaglam/esctl/blob/main/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fehmicansaglam/esctl)](https://goreportcard.com/report/github.com/fehmicansaglam/esctl)
 
-⚠️ **Warning: This tool is a work in progress and may not have full functionality or stability. Use it at your own risk.**
+`esctl` is a command-line tool for managing and interacting with Elasticsearch clusters. It provides a convenient interface to perform various operations, such as querying cluster information, managing indices, retrieving shard details, and monitoring tasks.
 
-## Features
-
-- Retrieve a list of all nodes in the Elasticsearch cluster.
-- List all indices available in the Elasticsearch cluster.
-- Get detailed information about shards, including their sizes and placement.
-- Omit empty columns: When displaying data in tabular format, esctl automatically omits any columns that are completely empty (other than the header). This helps to keep the output concise and focused on the data that is actually present.
+## Features:
+- Retrieve information about nodes, indices, shards, aliases, and tasks in an Elasticsearch cluster
+- Filter and sort data based on various criteria
+- Perform read-only operations for cluster monitoring and analysis
+- Simple and intuitive command-line interface
 
 ## Examples
 
