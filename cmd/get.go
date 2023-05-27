@@ -143,6 +143,37 @@ func handleIndexLogic() {
 	}
 }
 
+func includeShardByState(shard es.Shard) bool {
+	switch {
+	case flagStarted && shard.State == constants.ShardStateStarted:
+		return true
+	case flagRelocating && shard.State == constants.ShardStateRelocating:
+		return true
+	case flagInitializing && shard.State == constants.ShardStateInitializing:
+		return true
+	case flagUnassigned && shard.State == constants.ShardStateUnassigned:
+		return true
+	case !flagStarted && !flagRelocating && !flagInitializing && !flagUnassigned:
+		return true
+	}
+	return false
+}
+
+func includeShardByNumber(shard es.Shard) bool {
+	shardNumber, err := strconv.Atoi(shard.Shard)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to parse shard number:", err)
+		os.Exit(1)
+	}
+	return flagShard == -1 || flagShard == shardNumber
+}
+
+func includeShardByPriRep(shard es.Shard) bool {
+	return (flagPrimary && shard.PriRep == constants.ShardPrimary) ||
+		(flagReplica && shard.PriRep == constants.ShardReplica) ||
+		(!flagPrimary && !flagReplica)
+}
+
 func handleShardLogic() {
 	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
 	if err != nil {
@@ -154,31 +185,7 @@ func handleShardLogic() {
 	data := [][]string{}
 
 	for _, shard := range shards {
-		includeShardByState := false
-		switch {
-		case flagStarted && shard.State == constants.ShardStateStarted:
-			includeShardByState = true
-		case flagRelocating && shard.State == constants.ShardStateRelocating:
-			includeShardByState = true
-		case flagInitializing && shard.State == constants.ShardStateInitializing:
-			includeShardByState = true
-		case flagUnassigned && shard.State == constants.ShardStateUnassigned:
-			includeShardByState = true
-		case !flagStarted && !flagRelocating && !flagInitializing && !flagUnassigned:
-			includeShardByState = true
-		}
-
-		shardNumber, err := strconv.Atoi(shard.Shard)
-		if err != nil {
-			panic(err)
-		}
-		includeShardByNumber := (flagShard == -1 || flagShard == shardNumber)
-
-		includeShardByPriRep := (flagPrimary && shard.PriRep == constants.ShardPrimary) ||
-			(flagReplica && shard.PriRep == constants.ShardReplica) ||
-			(!flagPrimary && !flagReplica)
-
-		if includeShardByState && includeShardByNumber && includeShardByPriRep {
+		if includeShardByState(shard) && includeShardByNumber(shard) && includeShardByPriRep(shard) {
 			row := []string{
 				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
 			}
