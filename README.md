@@ -12,6 +12,17 @@
 - Perform read-only operations for cluster monitoring and analysis
 - Simple and intuitive command-line interface
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [Usage](#usage)
+  - [Elasticsearch Host Configuration](#elasticsearch-host-configuration)
+  - [Get](#get)
+  - [Describe](#describe)
+- [License](#license)
+
 ## Installation
 
 To install `esctl`, ensure that you have Go installed and set up in your development environment. Then, follow the steps below:
