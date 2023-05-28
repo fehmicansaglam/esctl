@@ -1,5 +1,6 @@
 # esctl
 
+[![Latest Stable Version](https://img.shields.io/badge/version-v0.1-blue.svg)](https://github.com/fehmicansaglam/esctl/releases/tag/v0.1)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/fehmicansaglam/esctl/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fehmicansaglam/esctl)](https://goreportcard.com/report/github.com/fehmicansaglam/esctl)
 
@@ -190,7 +191,7 @@ To install `esctl`, ensure that you have Go installed and set up in your develop
 2. Run the following command to install `esctl`:
 
    ```shell
-   go install github.com/fehmicansaglam/esctl
+   go install github.com/fehmicansaglam/esctl@v0.1
    ```
    This command will fetch the source code from the GitHub repository, compile it, and install the `esctl` binary in your Go workspace's `bin` directory.
 
