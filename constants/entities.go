@@ -11,6 +11,7 @@ const (
 	EntityAliases = "aliases"
 	EntityTask    = "task"
 	EntityTasks   = "tasks"
+	EntityCluster = "cluster"
 )
 
 const (

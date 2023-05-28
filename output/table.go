@@ -1,4 +1,4 @@
-package tabular
+package output
 
 import (
 	"fmt"

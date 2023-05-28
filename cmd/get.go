@@ -7,8 +7,8 @@ import (
 
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
+	"github.com/fehmicansaglam/esctl/output"
 	"github.com/fehmicansaglam/esctl/shared"
-	"github.com/fehmicansaglam/esctl/tabular"
 	"github.com/spf13/cobra"
 )
 
@@ -71,8 +71,8 @@ Examples:
 Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			fmt.Println("Please specify the entity (node, index, or shard).")
-			return
+			fmt.Println("Please specify an entity.")
+			os.Exit(1)
 		}
 
 		entity := args[0]
@@ -90,8 +90,7 @@ Please note that the 'get' command only provides read-only access and does not s
 			handleTaskLogic()
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
-			fmt.Println("Supported entities: node(s), index(es), shard(s)")
-
+			os.Exit(1)
 		}
 	},
 }
@@ -115,7 +114,7 @@ func handleNodeLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data, flagSortBy...)
+	output.PrintTable(headers, data, flagSortBy...)
 }
 
 func handleIndexLogic() {
@@ -137,9 +136,9 @@ func handleIndexLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		tabular.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(headers, data, flagSortBy...)
 	} else {
-		tabular.PrintTable(headers, data, "INDEX")
+		output.PrintTable(headers, data, "INDEX")
 	}
 }
 
@@ -194,9 +193,9 @@ func handleShardLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		tabular.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(headers, data, flagSortBy...)
 	} else {
-		tabular.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
+		output.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
 	}
 }
 
@@ -226,7 +225,7 @@ func handleAliasLogic() {
 		data = append(data, row)
 	}
 
-	tabular.PrintTable(headers, data, flagSortBy...)
+	output.PrintTable(headers, data, flagSortBy...)
 }
 
 func handleTaskLogic() {
@@ -247,9 +246,9 @@ func handleTaskLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		tabular.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(headers, data, flagSortBy...)
 	} else {
-		tabular.PrintTable(headers, data, "NODE", "ID")
+		output.PrintTable(headers, data, "NODE", "ID")
 	}
 }
 

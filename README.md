@@ -198,6 +198,17 @@ Example:
 esctl get tasks --actions 'index*' --actions '*search*'
 
 ```
+### Describe
+
+The `esctl describe` command allows you to retrieve detailed information about various entities in the Elasticsearch cluster. The output is in YAML format, making it easy to read and understand.
+
+#### Describe Cluster
+
+This command outputs the cluster information in YAML format, providing a comprehensive overview of the cluster's current state.
+
+```shell
+esctl describe cluster
+```
 
 ## License
 
