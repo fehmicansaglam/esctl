@@ -1,6 +1,6 @@
 # esctl
 
-[![Latest Stable Version](https://img.shields.io/badge/version-v0.1-blue.svg)](https://github.com/fehmicansaglam/esctl/releases/tag/v0.1)
+[![Latest Stable Version](https://img.shields.io/badge/version-v0.1.0-blue.svg)](https://github.com/fehmicansaglam/esctl/releases/tag/v0.1.0)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/fehmicansaglam/esctl/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fehmicansaglam/esctl)](https://goreportcard.com/report/github.com/fehmicansaglam/esctl)
 
@@ -11,6 +11,23 @@
 - Filter and sort data based on various criteria
 - Perform read-only operations for cluster monitoring and analysis
 - Simple and intuitive command-line interface
+
+## Installation
+
+To install `esctl`, ensure that you have Go installed and set up in your development environment. Then, follow the steps below:
+
+1. Open a terminal or command prompt.
+
+2. Run the following command to install `esctl`:
+
+   ```shell
+   go install github.com/fehmicansaglam/esctl@latest
+   ```
+   This command will fetch the source code from the GitHub repository, compile it, and install the `esctl` binary in your Go workspace's `bin` directory.
+
+3. Make sure that your Go workspace's `bin` directory is added to your system's `PATH` environment variable. This step will allow you to run `esctl` from any directory in the terminal or command prompt.
+
+Once installed, you can run `esctl` by simply typing `esctl` in the terminal or command prompt.
 
 ## Examples
 
@@ -181,23 +198,6 @@ Example:
 esctl get tasks --actions 'index*' --actions '*search*'
 
 ```
-
-## Installation
-
-To install `esctl`, ensure that you have Go installed and set up in your development environment. Then, follow the steps below:
-
-1. Open a terminal or command prompt.
-
-2. Run the following command to install `esctl`:
-
-   ```shell
-   go install github.com/fehmicansaglam/esctl@v0.1
-   ```
-   This command will fetch the source code from the GitHub repository, compile it, and install the `esctl` binary in your Go workspace's `bin` directory.
-
-3. Make sure that your Go workspace's `bin` directory is added to your system's `PATH` environment variable. This step will allow you to run `esctl` from any directory in the terminal or command prompt.
-
-Once installed, you can run `esctl` by simply typing `esctl` in the terminal or command prompt.
 
 ## License
 
