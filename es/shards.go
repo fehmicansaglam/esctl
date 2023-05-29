@@ -17,17 +17,17 @@ type Shard struct {
 	SegmentsCount    string `json:"segments.count"`
 }
 
-func GetShards(host string, port int, index string) ([]Shard, error) {
-	url := fmt.Sprintf("http://%s:%d/_cat/shards", host, port)
+func GetShards(index string) ([]Shard, error) {
+	endpoint := "_cat/shards"
 
 	if index != "" {
-		url += fmt.Sprintf("/%s", index)
+		endpoint += fmt.Sprintf("/%s", index)
 	}
 
-	url += "?format=json&h=index,shard,prirep,state,docs,store,ip,id,node,unassigned.reason,unassigned.at,segments.count"
+	endpoint += "?format=json&h=index,shard,prirep,state,docs,store,ip,id,node,unassigned.reason,unassigned.at,segments.count"
 
 	var shards []Shard
-	err := getJSONResponse(url, &shards)
+	err := getJSONResponse(endpoint, &shards)
 	if err != nil {
 		return nil, err
 	}

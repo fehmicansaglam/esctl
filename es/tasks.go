@@ -2,7 +2,6 @@ package es
 
 import (
 	"net/url"
-	"strconv"
 	"strings"
 )
 
@@ -33,20 +32,16 @@ type Task struct {
 	Headers            map[string]interface{} `json:"headers"`
 }
 
-func GetTasks(host string, port int, actions []string) (TasksResponse, error) {
-	u := &url.URL{
-		Scheme: "http",
-		Host:   host + ":" + strconv.Itoa(port),
-		Path:   "/_tasks",
-	}
+func GetTasks(actions []string) (TasksResponse, error) {
+	endpoint := "/_tasks"
 
 	if len(actions) > 0 {
 		actionsParam := strings.Join(actions, ",")
-		u.RawQuery = url.Values{"actions": {actionsParam}}.Encode()
+		endpoint += "?" + url.Values{"actions": {actionsParam}}.Encode()
 	}
 
 	var response TasksResponse
-	if err := getJSONResponse(u.String(), &response); err != nil {
+	if err := getJSONResponse(endpoint, &response); err != nil {
 		return TasksResponse{}, err
 	}
 

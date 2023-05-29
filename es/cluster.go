@@ -1,10 +1,5 @@
 package es
 
-import (
-	"fmt"
-	"net/url"
-)
-
 type ClusterHealth struct {
 	ClusterName                 string  `json:"cluster_name" yaml:"clusterName"`
 	Status                      string  `json:"status" yaml:"status"`
@@ -67,25 +62,13 @@ type Cluster struct {
 	Stats  ClusterStats  `json:"stats"`
 }
 
-func GetCluster(host string, port int) (*Cluster, error) {
-	statsURL := url.URL{
-		Scheme: "http",
-		Host:   fmt.Sprintf("%s:%d", host, port),
-		Path:   "_cluster/stats",
-	}
-
-	healthURL := url.URL{
-		Scheme: "http",
-		Host:   fmt.Sprintf("%s:%d", host, port),
-		Path:   "_cluster/health",
-	}
-
+func GetCluster() (*Cluster, error) {
 	var cluster Cluster
-	if err := getJSONResponse(statsURL.String(), &cluster.Stats); err != nil {
+	if err := getJSONResponse("_cluster/stats", &cluster.Stats); err != nil {
 		return nil, err
 	}
 
-	if err := getJSONResponse(healthURL.String(), &cluster.Health); err != nil {
+	if err := getJSONResponse("_cluster/health", &cluster.Health); err != nil {
 		return nil, err
 	}
 

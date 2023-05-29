@@ -80,7 +80,7 @@ articles_alias  articles
 
 ### Elasticsearch Host Configuration
 
-`esctl` allows you to configure the Elasticsearch host and port using the `--host` and `--port` flags or the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables. By default, the host is set to `localhost` and the port is set to `9200`.
+`esctl` allows you to configure the Elasticsearch host, port, protocol, username, and password using command-line flags or environment variables. By default, the host is set to `localhost`, the port to `9200`, and the protocol to `http`.
 
 To specify a custom host, you can use the `--host` flag followed by the desired host value. For example:
 
@@ -93,10 +93,21 @@ Similarly, to specify a custom port, you can use the `--port` flag followed by t
 ```shell
 esctl --port=<your_port> <command>
 ```
+To specify a custom protocol, you can use the --protocol flag followed by either http or https. For example:
 
-Alternatively, you can set the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables to your desired Elasticsearch host and port, respectively. If the `--host` and `--port` flags are not provided and the corresponding environment variables are set, `esctl` will use the values from the environment variables as the host and port.
+```shell
+esctl --protocol=https <command>
+```
 
-If the `--host` and `--port` flags are not provided and the `ELASTICSEARCH_HOST` and `ELASTICSEARCH_PORT` environment variables are not set, `esctl` will default to `localhost` and `9200`, respectively.
+To provide basic authentication credentials, you can use the `--username` and `--password` flags followed by the corresponding values. For example:
+
+```shell
+esctl --username=<your_username> --password=<your_password> <command>
+```
+
+Alternatively, you can set the `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, `ELASTICSEARCH_PROTOCOL`, `ELASTICSEARCH_USERNAME`, and `ELASTICSEARCH_PASSWORD` environment variables to your desired Elasticsearch configuration.
+
+If the corresponding command-line flags and environment variables are not provided, `esctl` will use the default values (`localhost`, `9200`, `http`, no username, and no password) for the Elasticsearch connection.
 
 ### Get
 

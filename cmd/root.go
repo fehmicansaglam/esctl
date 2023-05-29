@@ -24,11 +24,30 @@ func Execute() {
 }
 
 func init() {
+	setupElasticsearchProtocol()
+	setupElasticsearchUsername()
+	setupElasticsearchPassword()
 	setupElasticsearchHost()
 	setupElasticsearchPort()
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func setupElasticsearchProtocol() {
+	defaultProtocol := constants.DefaultElasticsearchProtocol
+	defaultProtocolEnv := os.Getenv(constants.ElasticsearchProtocolEnvVar)
+	if defaultProtocolEnv != "" {
+		defaultProtocol = defaultProtocolEnv
+	}
+	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchProtocol, "protocol", defaultProtocol, "Elasticsearch protocol")
+}
+
+func setupElasticsearchUsername() {
+	defaultUsername := os.Getenv(constants.ElasticsearchUsernameEnvVar)
+	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchUsername, "username", defaultUsername, "Elasticsearch username")
+}
+
+func setupElasticsearchPassword() {
+	defaultPassword := os.Getenv(constants.ElasticsearchPasswordEnvVar)
+	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchPassword, "password", defaultPassword, "Elasticsearch password")
 }
 
 func setupElasticsearchHost() {

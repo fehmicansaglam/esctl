@@ -8,7 +8,6 @@ import (
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
-	"github.com/fehmicansaglam/esctl/shared"
 	"github.com/spf13/cobra"
 )
 
@@ -96,7 +95,7 @@ Please note that the 'get' command only provides read-only access and does not s
 }
 
 func handleNodeLogic() {
-	nodes, err := es.GetNodes(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	nodes, err := es.GetNodes()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve nodes:", err)
 		os.Exit(1)
@@ -118,7 +117,7 @@ func handleNodeLogic() {
 }
 
 func handleIndexLogic() {
-	indices, err := es.GetIndices(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
+	indices, err := es.GetIndices(flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve indices:", err)
 		os.Exit(1)
@@ -174,7 +173,7 @@ func includeShardByPriRep(shard es.Shard) bool {
 }
 
 func handleShardLogic() {
-	shards, err := es.GetShards(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
+	shards, err := es.GetShards(flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve shards:", err)
 		os.Exit(1)
@@ -211,7 +210,7 @@ func humanizePriRep(priRep string) string {
 }
 
 func handleAliasLogic() {
-	aliases, err := es.GetAliases(shared.ElasticsearchHost, shared.ElasticsearchPort, flagIndex)
+	aliases, err := es.GetAliases(flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve aliases:", err)
 		os.Exit(1)
@@ -229,7 +228,7 @@ func handleAliasLogic() {
 }
 
 func handleTaskLogic() {
-	tasksResponse, err := es.GetTasks(shared.ElasticsearchHost, shared.ElasticsearchPort, flagActions)
+	tasksResponse, err := es.GetTasks(flagActions)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve tasks:", err)
 		os.Exit(1)

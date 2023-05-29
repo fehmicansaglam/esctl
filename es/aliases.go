@@ -1,29 +1,18 @@
 package es
 
-import (
-	"fmt"
-	"net/url"
-)
-
 type AliasResponse map[string]AliasDetail
 
 type AliasDetail struct {
 	Aliases map[string]interface{} `json:"aliases"`
 }
 
-func GetAliases(host string, port int, index string) (map[string]string, error) {
+func GetAliases(index string) (map[string]string, error) {
 	if index == "" {
 		index = "_all"
 	}
 
-	url := url.URL{
-		Scheme: "http",
-		Host:   fmt.Sprintf("%s:%d", host, port),
-		Path:   index + "/_alias",
-	}
-
 	var aliasResp AliasResponse
-	if err := getJSONResponse(url.String(), &aliasResp); err != nil {
+	if err := getJSONResponse(index+"/_alias", &aliasResp); err != nil {
 		return nil, err
 	}
 

@@ -1,6 +1,9 @@
 package shared
 
 var (
-	ElasticsearchHost string
-	ElasticsearchPort int
+	ElasticsearchProtocol string
+	ElasticsearchUsername string
+	ElasticsearchPassword string
+	ElasticsearchHost     string
+	ElasticsearchPort     int
 )

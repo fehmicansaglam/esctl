@@ -7,7 +7,6 @@ import (
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
-	"github.com/fehmicansaglam/esctl/shared"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +29,7 @@ var describeCmd = &cobra.Command{
 }
 
 func handleDescribeCluster() {
-	cluster, err := es.GetCluster(shared.ElasticsearchHost, shared.ElasticsearchPort)
+	cluster, err := es.GetCluster()
 	if err != nil {
 		fmt.Println("Failed to retrieve cluster information:", err)
 		return

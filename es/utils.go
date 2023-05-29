@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/fehmicansaglam/esctl/shared"
 )
 
 type EsError struct {
@@ -15,8 +17,19 @@ type EsError struct {
 	Status int `json:"status"`
 }
 
-func getJSONResponse(url string, target interface{}) error {
-	resp, err := http.Get(url)
+func getJSONResponse(endpoint string, target interface{}) error {
+	baseURL := fmt.Sprintf("%s://%s:%d/%s", shared.ElasticsearchProtocol, shared.ElasticsearchHost, shared.ElasticsearchPort, endpoint)
+
+	req, err := http.NewRequest(http.MethodGet, baseURL, nil)
+	if err != nil {
+		return err
+	}
+
+	if shared.ElasticsearchUsername != "" && shared.ElasticsearchPassword != "" {
+		req.SetBasicAuth(shared.ElasticsearchUsername, shared.ElasticsearchPassword)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
