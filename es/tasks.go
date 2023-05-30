@@ -33,7 +33,7 @@ type Task struct {
 }
 
 func GetTasks(actions []string) (TasksResponse, error) {
-	endpoint := "/_tasks"
+	endpoint := "_tasks"
 
 	if len(actions) > 0 {
 		actionsParam := strings.Join(actions, ",")
