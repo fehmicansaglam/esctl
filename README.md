@@ -127,7 +127,8 @@ esctl get [entity] [flags]
 
 #### Flags
 
-- `--index`: Specifies the name of the index (applies to `indices` and `shards` entities).
+- `--index`: Specifies the name of the index (applies to `indices`, `shards`, and `aliases` entities).
+- `--node`: Filters shards by node name (applies to `shards` entity).
 - `--shard`: Filters shards by shard number (applies to `shards` entity).
 - `--primary`: Filters primary shards (applies to `shards` entity).
 - `--replica`: Filters replica shards (applies to `shards` entity).
@@ -160,10 +161,11 @@ esctl get indices
 To retrieve shards from Elasticsearch, you can use the following command:
 
 ```shell
-esctl get shards [--index <index_name>] [--shard <shard>] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
+esctl get shards [--index <index_name>] [--node <node_name>] [--shard <shard>] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
 ```
 
 * `--index <index_name>`: Specifies the name of the index to retrieve shards from.
+* `--node <node_name>`: Filters shards by node name.
 * `--shard <shard>`: Filters shards by shard number.
 * `--primary`: Filters primary shards.
 * `--replica`: Filters replica shards.

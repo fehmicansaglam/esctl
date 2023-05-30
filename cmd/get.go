@@ -13,6 +13,7 @@ import (
 
 var (
 	flagIndex        string
+	flagNode         string
 	flagShard        int
 	flagPrimary      bool
 	flagReplica      bool
@@ -113,7 +114,11 @@ func handleNodeLogic() {
 		data = append(data, row)
 	}
 
-	output.PrintTable(headers, data, flagSortBy...)
+	if len(flagSortBy) > 0 {
+		output.PrintTable(headers, data, flagSortBy...)
+	} else {
+		output.PrintTable(headers, data, "NAME")
+	}
 }
 
 func handleIndexLogic() {
@@ -172,6 +177,14 @@ func includeShardByPriRep(shard es.Shard) bool {
 		(!flagPrimary && !flagReplica)
 }
 
+func includeShardByNode(shard es.Shard) bool {
+	if flagNode == "" {
+		return true
+	}
+
+	return shard.Node == flagNode
+}
+
 func handleShardLogic() {
 	shards, err := es.GetShards(flagIndex)
 	if err != nil {
@@ -183,7 +196,7 @@ func handleShardLogic() {
 	data := [][]string{}
 
 	for _, shard := range shards {
-		if includeShardByState(shard) && includeShardByNumber(shard) && includeShardByPriRep(shard) {
+		if includeShardByState(shard) && includeShardByNumber(shard) && includeShardByPriRep(shard) && includeShardByNode(shard) {
 			row := []string{
 				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
 			}
@@ -254,6 +267,7 @@ func handleTaskLogic() {
 func init() {
 	rootCmd.AddCommand(getCmd)
 	getCmd.Flags().StringVar(&flagIndex, "index", "", "Name of the index")
+	getCmd.Flags().StringVar(&flagNode, "node", "", "Filter shards by node")
 	getCmd.Flags().IntVar(&flagShard, "shard", -1, "Filter shards by shard number")
 	getCmd.Flags().BoolVar(&flagPrimary, "primary", false, "Filter primary shards")
 	getCmd.Flags().BoolVar(&flagReplica, "replica", false, "Filter replica shards")
