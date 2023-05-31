@@ -24,7 +24,6 @@ func PrintTable(headers []string, data [][]string, sortByHeaders ...string) {
 
 	// Sort data if sortByHeaders are valid
 	if len(sortByHeaders) > 0 {
-		// Create a mapping of header name to column index
 		headerIndexMap := make(map[string]int)
 		for i, header := range headers {
 			headerIndexMap[strings.ToLower(header)] = i
@@ -41,7 +40,6 @@ func PrintTable(headers []string, data [][]string, sortByHeaders ...string) {
 		})
 	}
 
-	// Create a tabwriter
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	defer w.Flush()
 

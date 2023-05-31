@@ -19,8 +19,8 @@ Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 
 - [Installation](#installation)
 - [Examples](#examples)
+- [Configuration](#configuration)
 - [Usage](#usage)
-  - [Elasticsearch Host Configuration](#elasticsearch-host-configuration)
   - [Get](#get)
   - [Describe](#describe)
 - [License](#license)
@@ -76,11 +76,57 @@ es-data-0          127.0.0.1  cdfhilmrstw  *       4gb       1.6gb         41%  
 ALIAS           INDEX
 articles_alias  articles
 ```
-## Usage
+
+## Configuration
+
+`esctl` supports reading cluster configurations from a YAML file, enabling you to easily switch between different Elasticsearch clusters.
+
+Create a configuration file named `esctl.yaml` in your `$HOME/.config` directory. This file will contain the details of the Elasticsearch clusters you want to connect to.
+
+Here is an example configuration:
+
+```yaml
+current-cluster: "local"
+clusters:
+  - name: "local"
+    protocol: "http"
+    host: "localhost"
+    port: 9200
+  - name: "production"
+    protocol: "https"
+    host: "prod.es.example.com"
+    port: 443
+    username: "prod_username"
+    password: "prod_password"
+```
+
+In the configuration file:
+
+- `current-cluster` is the name of the cluster that `esctl` will connect to by default.
+- `clusters` is an array of your Elasticsearch clusters.
+  - `name` is the name you assign to the cluster.
+  - `protocol`, `host`, `port`, `username`, and `password` are the connection details for each cluster.
+  - `protocol` and `port` are optional and default to `http` and `9200` respectively.
+
+`esctl` will use the `current-cluster` defined in the configuration file unless another cluster is specified via command-line flag or environment variable.
+
+### set-cluster
+
+Sets the current cluster in the configuration file.
+
+```bash
+esctl set-cluster <cluster>
+```
+
+- `<cluster>`: The name of the cluster to set as the current cluster.
+
+This command updates the current cluster in the configuration file (`esctl.yaml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
+
+Note: The specified cluster name must already be defined in the configuration file.
 
 ### Elasticsearch Host Configuration
 
-`esctl` allows you to configure the Elasticsearch host, port, protocol, username, and password using command-line flags or environment variables. By default, the host is set to `localhost`, the port to `9200`, and the protocol to `http`.
+Additionally, `esctl` allows you to configure the Elasticsearch host, port, protocol, username, and password using command-line flags or environment variables. By default, the port is set to `9200`, and the protocol to `http`.
 
 To specify a custom host, you can use the `--host` flag followed by the desired host value. For example:
 
@@ -107,7 +153,9 @@ esctl --username=<your_username> --password=<your_password> <command>
 
 Alternatively, you can set the `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, `ELASTICSEARCH_PROTOCOL`, `ELASTICSEARCH_USERNAME`, and `ELASTICSEARCH_PASSWORD` environment variables to your desired Elasticsearch configuration.
 
-If the corresponding command-line flags and environment variables are not provided, `esctl` will use the default values (`localhost`, `9200`, `http`, no username, and no password) for the Elasticsearch connection.
+If the corresponding command-line flags and environment variables are not provided, `esctl` will use the default values (`9200`, `http`, no username, and no password) for the Elasticsearch connection.
+
+## Usage
 
 ### Get
 
