@@ -81,7 +81,7 @@ articles_alias  articles
 
 `esctl` supports reading cluster configurations from a YAML file, enabling you to easily switch between different Elasticsearch clusters.
 
-Create a configuration file named `esctl.yaml` in your `$HOME/.config` directory. This file will contain the details of the Elasticsearch clusters you want to connect to.
+Create a configuration file named `esctl.yml` in your `$HOME/.config` directory. This file will contain the details of the Elasticsearch clusters you want to connect to.
 
 Here is an example configuration:
 

@@ -20,7 +20,6 @@ var describeCmd = &cobra.Command{
 		switch entity {
 		case constants.EntityCluster:
 			handleDescribeCluster()
-		// Handle other entities here
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			os.Exit(1)

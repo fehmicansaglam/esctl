@@ -26,13 +26,17 @@ func Execute() {
 }
 
 func init() {
-	setupElasticsearchHost()
-	if shared.ElasticsearchHost != "" {
-		setupElasticsearchProtocol()
-		setupElasticsearchUsername()
-		setupElasticsearchPassword()
-		setupElasticsearchPort()
-	} else {
+	cobra.OnInitialize(initialize)
+
+	initProtocol()
+	initHost()
+	initPort()
+	initUsername()
+	initPassword()
+}
+
+func initialize() {
+	if shared.ElasticsearchHost == "" {
 		config := parseConfigFile()
 		readClusterFromConfig(config)
 	}
@@ -61,7 +65,7 @@ func parseConfigFile() Config {
 
 	viper.AddConfigPath(filepath.Join(home, ".config"))
 	viper.SetConfigName("esctl")
-	viper.SetConfigType("yaml")
+	viper.SetConfigType("yml")
 
 	err = viper.ReadInConfig()
 	if err != nil {
@@ -117,7 +121,7 @@ func readClusterFromConfig(config Config) {
 	}
 }
 
-func setupElasticsearchProtocol() {
+func initProtocol() {
 	defaultProtocol := constants.DefaultElasticsearchProtocol
 	defaultProtocolEnv := os.Getenv(constants.ElasticsearchProtocolEnvVar)
 	if defaultProtocolEnv != "" {
@@ -126,22 +130,12 @@ func setupElasticsearchProtocol() {
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchProtocol, "protocol", defaultProtocol, "Elasticsearch protocol")
 }
 
-func setupElasticsearchUsername() {
-	defaultUsername := os.Getenv(constants.ElasticsearchUsernameEnvVar)
-	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchUsername, "username", defaultUsername, "Elasticsearch username")
-}
-
-func setupElasticsearchPassword() {
-	defaultPassword := os.Getenv(constants.ElasticsearchPasswordEnvVar)
-	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchPassword, "password", defaultPassword, "Elasticsearch password")
-}
-
-func setupElasticsearchHost() {
+func initHost() {
 	defaultHost := os.Getenv(constants.ElasticsearchHostEnvVar)
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchHost, "host", defaultHost, "Elasticsearch host")
 }
 
-func setupElasticsearchPort() {
+func initPort() {
 	defaultPort := constants.DefaultElasticsearchPort
 	defaultPortStr := os.Getenv(constants.ElasticsearchPortEnvVar)
 	if defaultPortStr != "" {
@@ -153,4 +147,14 @@ func setupElasticsearchPort() {
 		defaultPort = parsedPort
 	}
 	rootCmd.PersistentFlags().IntVar(&shared.ElasticsearchPort, "port", defaultPort, "Elasticsearch port")
+}
+
+func initUsername() {
+	defaultUsername := os.Getenv(constants.ElasticsearchUsernameEnvVar)
+	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchUsername, "username", defaultUsername, "Elasticsearch username")
+}
+
+func initPassword() {
+	defaultPassword := os.Getenv(constants.ElasticsearchPasswordEnvVar)
+	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchPassword, "password", defaultPassword, "Elasticsearch password")
 }
