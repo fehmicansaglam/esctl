@@ -124,6 +124,33 @@ This command updates the current cluster in the configuration file (`esctl.yaml`
 
 Note: The specified cluster name must already be defined in the configuration file.
 
+### list-clusters
+
+The `list-clusters` command displays the clusters defined in the `esctl.yml` file.
+
+```bash
+esctl list-clusters
+```
+
+Example output:
+
+```
+- name: cluster1(*)
+  protocol: https
+  host: localhost
+  port: 9200
+  username: myuser
+  password: ********
+- name: cluster2
+  protocol: http
+  host: example.com
+  port: 9200
+  username: anotheruser
+  password: ********
+```
+
+In the example output, the current cluster is marked with an asterisk (*).
+
 ### Elasticsearch Host Configuration
 
 Additionally, `esctl` allows you to configure the Elasticsearch host, port, protocol, username, and password using command-line flags or environment variables. By default, the port is set to `9200`, and the protocol to `http`.
