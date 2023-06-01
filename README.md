@@ -120,7 +120,7 @@ esctl set-cluster <cluster>
 
 - `<cluster>`: The name of the cluster to set as the current cluster.
 
-This command updates the current cluster in the configuration file (`esctl.yaml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
+This command updates the current cluster in the configuration file (`esctl.yml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
 
 Note: The specified cluster name must already be defined in the configuration file.
 
