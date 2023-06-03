@@ -11,10 +11,11 @@ import (
 )
 
 var describeCmd = &cobra.Command{
-	Use:   "describe <entity>",
-	Short: "Print detailed information about an entity",
-	Long:  "Print detailed information about the specified entity.",
-	Args:  cobra.ExactArgs(1),
+	Use:       "describe ENTITY",
+	Short:     "Print detailed information about an entity",
+	Long:      "Print detailed information about the specified entity.",
+	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+	ValidArgs: []string{"cluster"},
 	Run: func(cmd *cobra.Command, args []string) {
 		entity := args[0]
 		switch entity {

@@ -26,55 +26,45 @@ var (
 )
 
 var getCmd = &cobra.Command{
-	Use:   "get",
+	Use:   "get ENTITY",
 	Short: "Get Elasticsearch entities",
-	Long: `The 'get' command allows you to retrieve information about Elasticsearch entities. Supported entities include nodes, indices, and shards. This command provides a read-only view of the cluster and does not support data querying.
-
-Usage:
-	esctl get [entity]
+	Long: trim(`
+The 'get' command allows you to retrieve information about Elasticsearch entities.
 
 Available Entities:
-	- nodes: List all nodes in the Elasticsearch cluster.
-	- indices: List all indices in the Elasticsearch cluster.
-	- shards: List detailed information about shards, including their sizes and placement.
-	- aliases: List all aliases in the Elasticsearch cluster.
-	- tasks: List all tasks in the Elasticsearch cluster.
+  - nodes: List all nodes in the Elasticsearch cluster.
+  - indices: List all indices in the Elasticsearch cluster.
+  - shards: List detailed information about shards, including their sizes and placement.
+  - aliases: List all aliases in the Elasticsearch cluster.
+  - tasks: List all tasks in the Elasticsearch cluster.`),
+	Example: trimAndIndent(`
+#Retrieve a list of all nodes in the Elasticsearch cluster.
+esctl get nodes
 
-Options:
-	[entity] - Specifies the entity type to retrieve. Supports 'nodes', 'indices', and 'shards'.
+#Retrieve a list of all indices in the Elasticsearch cluster.
+esctl get indices
 
-Examples:
-	esctl get nodes
-	Retrieves a list of all nodes in the Elasticsearch cluster.
+#Retrieve detailed information about shards in the Elasticsearch cluster.
+esctl get shards
 
-	esctl get indices
-	Retrieves a list of all indices in the Elasticsearch cluster.
+#Retrieve shard information for an index.
+esctl get shards --index my_index
 
-	esctl get shards
-	Retrieves detailed information about shards in the Elasticsearch cluster.
+#Retrieve shard information filtered by state.
+esctl get shards --started --relocating
 
-	esctl get shards --index my_index
-	Retrieve shard information for an index.
+#Retrieve all aliases.
+esctl get aliases
 
-	esctl get shards --started --relocating
-	Retrieve shard information filtered by state.
+#Retrieve tasks filtered by actions using wildcard patterns.
+esctl get tasks --actions 'index*' --actions '*search*'
 
-	esctl get aliases
-	Retrieve all aliases.
-
-	esctl get tasks --actions 'index*' --actions '*search*'
-	Retrieve tasks filtered by actions using wildcard patterns.
-
-	esctl get tasks
-	Retrieve all tasks.
-
-Please note that the 'get' command only provides read-only access and does not support data querying or modification operations.`,
+#Retrieve all tasks.
+esctl get tasks`),
+	Args:       cobra.ExactArgs(1),
+	ValidArgs:  []string{"node", "index", "shard", "alias", "task"},
+	ArgAliases: []string{"nodes", "indices", "shards", "aliases", "tasks"},
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			fmt.Println("Please specify an entity.")
-			os.Exit(1)
-		}
-
 		entity := args[0]
 
 		switch entity {
