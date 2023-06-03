@@ -8,10 +8,25 @@ import (
 	"text/tabwriter"
 )
 
-func PrintTable(headers []string, data [][]string, sortByHeaders ...string) {
+type ColumnDef struct {
+	Header string
+	Type   ColumnType
+}
+
+type ColumnType int
+
+const (
+	Text ColumnType = iota
+	Number
+	Percent
+	DataSize
+	Date
+)
+
+func PrintTable(columnDefs []ColumnDef, data [][]string, sortByHeaders ...string) {
 	// Determine if a column is empty
-	emptyColumns := make([]bool, len(headers))
-	for i := range headers {
+	emptyColumns := make([]bool, len(columnDefs))
+	for i := range columnDefs {
 		empty := true
 		for _, row := range data {
 			if row[i] != "" {
@@ -25,8 +40,8 @@ func PrintTable(headers []string, data [][]string, sortByHeaders ...string) {
 	// Sort data if sortByHeaders are valid
 	if len(sortByHeaders) > 0 {
 		headerIndexMap := make(map[string]int)
-		for i, header := range headers {
-			headerIndexMap[strings.ToLower(header)] = i
+		for i, columnDef := range columnDefs {
+			headerIndexMap[strings.ToLower(columnDef.Header)] = i
 		}
 
 		sort.SliceStable(data, func(i, j int) bool {
@@ -44,9 +59,9 @@ func PrintTable(headers []string, data [][]string, sortByHeaders ...string) {
 	defer w.Flush()
 
 	// Write headers
-	for i, h := range headers {
+	for i, columnDef := range columnDefs {
 		if !emptyColumns[i] {
-			fmt.Fprintf(w, "%s\t", h)
+			fmt.Fprintf(w, "%s\t", columnDef.Header)
 		}
 	}
 	fmt.Fprintln(w)

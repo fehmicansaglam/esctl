@@ -102,7 +102,21 @@ func handleNodeLogic() {
 		os.Exit(1)
 	}
 
-	headers := []string{"NAME", "IP", "NODE-ROLE", "MASTER", "HEAP-MAX", "HEAP-CURRENT", "HEAP-PERCENT", "CPU", "LOAD-1M", "DISK-TOTAL", "DISK-USED", "DISK-AVAILABLE"}
+	columnDefs := []output.ColumnDef{
+		{Header: "NAME", Type: output.Text},
+		{Header: "IP", Type: output.Text},
+		{Header: "NODE-ROLE", Type: output.Text},
+		{Header: "MASTER", Type: output.Text},
+		{Header: "HEAP-MAX", Type: output.Text},
+		{Header: "HEAP-CURRENT", Type: output.Text},
+		{Header: "HEAP-PERCENT", Type: output.Text},
+		{Header: "CPU", Type: output.Text},
+		{Header: "LOAD-1M", Type: output.Text},
+		{Header: "DISK-TOTAL", Type: output.Text},
+		{Header: "DISK-USED", Type: output.Text},
+		{Header: "DISK-AVAILABLE", Type: output.Text},
+	}
+
 	data := [][]string{}
 
 	for _, node := range nodes {
@@ -115,9 +129,9 @@ func handleNodeLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		output.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(columnDefs, data, flagSortBy...)
 	} else {
-		output.PrintTable(headers, data, "NAME")
+		output.PrintTable(columnDefs, data, "NAME")
 	}
 }
 
@@ -128,7 +142,19 @@ func handleIndexLogic() {
 		os.Exit(1)
 	}
 
-	headers := []string{"INDEX", "UUID", "HEALTH", "STATUS", "SHARDS", "REPLICAS", "DOCS-COUNT", "DOCS-DELETED", "CREATION-DATE", "STORE-SIZE", "PRI-STORE-SIZE"}
+	columnDefs := []output.ColumnDef{
+		{Header: "INDEX", Type: output.Text},
+		{Header: "UUID", Type: output.Text},
+		{Header: "HEALTH", Type: output.Text},
+		{Header: "STATUS", Type: output.Text},
+		{Header: "SHARDS", Type: output.Text},
+		{Header: "REPLICAS", Type: output.Text},
+		{Header: "DOCS-COUNT", Type: output.Text},
+		{Header: "DOCS-DELETED", Type: output.Text},
+		{Header: "CREATION-DATE", Type: output.Text},
+		{Header: "STORE-SIZE", Type: output.Text},
+		{Header: "PRI-STORE-SIZE", Type: output.Text},
+	}
 	data := [][]string{}
 
 	for _, index := range indices {
@@ -140,9 +166,9 @@ func handleIndexLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		output.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(columnDefs, data, flagSortBy...)
 	} else {
-		output.PrintTable(headers, data, "INDEX")
+		output.PrintTable(columnDefs, data, "INDEX")
 	}
 }
 
@@ -192,7 +218,20 @@ func handleShardLogic() {
 		os.Exit(1)
 	}
 
-	headers := []string{"INDEX", "SHARD", "PRI-REP", "STATE", "DOCS", "STORE", "IP", "NODE", "NODE-ID", "UNASSIGNED-REASON", "UNASSIGNED-AT", "SEGMENTS-COUNT"}
+	columnDefs := []output.ColumnDef{
+		{Header: "INDEX", Type: output.Text},
+		{Header: "SHARD", Type: output.Text},
+		{Header: "PRI-REP", Type: output.Text},
+		{Header: "STATE", Type: output.Text},
+		{Header: "DOCS", Type: output.Text},
+		{Header: "STORE", Type: output.Text},
+		{Header: "IP", Type: output.Text},
+		{Header: "NODE", Type: output.Text},
+		{Header: "NODE-ID", Type: output.Text},
+		{Header: "UNASSIGNED-REASON", Type: output.Text},
+		{Header: "UNASSIGNED-AT", Type: output.Text},
+		{Header: "SEGMENTS-COUNT", Type: output.Text},
+	}
 	data := [][]string{}
 
 	for _, shard := range shards {
@@ -205,9 +244,9 @@ func handleShardLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		output.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(columnDefs, data, flagSortBy...)
 	} else {
-		output.PrintTable(headers, data, "INDEX", "SHARD", "PRI-REP")
+		output.PrintTable(columnDefs, data, "INDEX", "SHARD", "PRI-REP")
 	}
 }
 
@@ -229,7 +268,10 @@ func handleAliasLogic() {
 		os.Exit(1)
 	}
 
-	headers := []string{"ALIAS", "INDEX"}
+	columnDefs := []output.ColumnDef{
+		{Header: "ALIAS", Type: output.Text},
+		{Header: "INDEX", Type: output.Text},
+	}
 	data := [][]string{}
 
 	for alias, index := range aliases {
@@ -237,7 +279,7 @@ func handleAliasLogic() {
 		data = append(data, row)
 	}
 
-	output.PrintTable(headers, data, flagSortBy...)
+	output.PrintTable(columnDefs, data, flagSortBy...)
 }
 
 func handleTaskLogic() {
@@ -247,7 +289,11 @@ func handleTaskLogic() {
 		os.Exit(1)
 	}
 
-	headers := []string{"NODE", "ID", "ACTION"}
+	columnDefs := []output.ColumnDef{
+		{Header: "NODE", Type: output.Text},
+		{Header: "ID", Type: output.Text},
+		{Header: "ACTION", Type: output.Text},
+	}
 	data := [][]string{}
 
 	for _, node := range tasksResponse.Nodes {
@@ -258,9 +304,9 @@ func handleTaskLogic() {
 	}
 
 	if len(flagSortBy) > 0 {
-		output.PrintTable(headers, data, flagSortBy...)
+		output.PrintTable(columnDefs, data, flagSortBy...)
 	} else {
-		output.PrintTable(headers, data, "NODE", "ID")
+		output.PrintTable(columnDefs, data, "NODE", "ID")
 	}
 }
 
