@@ -8,7 +8,7 @@ import (
 func TestParseDataSize(t *testing.T) {
 	testCases := []struct {
 		name     string
-		sizeStr  string
+		input    string
 		expected float64
 	}{
 		{"Bytes", "10b", 10},
@@ -24,23 +24,42 @@ func TestParseDataSize(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := parseDataSize(tc.sizeStr)
+			result, err := parseDataSize(tc.input)
 			if err != nil && tc.expected != 0 {
 				t.Errorf("unexpected error: %v", err)
 			}
 			if result != tc.expected {
-				t.Errorf("parseDataSize(%s) = %f, want %f", tc.sizeStr, result, tc.expected)
+				t.Errorf("parseDataSize(%s) = %f, want %f", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+type TestCase struct {
+	name     string
+	input    []string
+	expected []string
+}
+
+func testSort(t *testing.T, testCases []TestCase, sortFunc func(a, b string) bool) {
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			sort.SliceStable(tc.input, func(i, j int) bool {
+				return sortFunc(tc.input[i], tc.input[j])
+			})
+
+			for i, v := range tc.input {
+				if v != tc.expected[i] {
+					t.Errorf("unexpected sort result: got %v, want %v", tc.input, tc.expected)
+					break
+				}
 			}
 		})
 	}
 }
 
 func TestSortDataSize(t *testing.T) {
-	testCases := []struct {
-		name     string
-		inputs   []string
-		expected []string
-	}{
+	testCases := []TestCase{
 		{
 			"Sort data sizes",
 			[]string{"10gb", "5kb", "3mb", "2tb", "1b"},
@@ -56,19 +75,56 @@ func TestSortDataSize(t *testing.T) {
 			[]string{"1.5kb", "1500b"},
 			[]string{"1500b", "1.5kb"},
 		},
+		{
+			"Sort with empty values",
+			[]string{"", "10gb", "", "5kb", "", "3mb"},
+			[]string{"", "", "", "5kb", "3mb", "10gb"},
+		},
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			sort.SliceStable(tc.inputs, func(i, j int) bool {
-				return sortDataSize(tc.inputs[i], tc.inputs[j])
-			})
-			for i, v := range tc.inputs {
-				if v != tc.expected[i] {
-					t.Errorf("unexpected sort result: got %v, want %v", tc.inputs, tc.expected)
-					break
-				}
-			}
-		})
+	testSort(t, testCases, sortDataSize)
+}
+
+func TestSortPercent(t *testing.T) {
+	testCases := []TestCase{
+		{
+			"Ascending",
+			[]string{"12%", "33.9%", "99.1%"},
+			[]string{"12%", "33.9%", "99.1%"},
+		},
+		{
+			"Descending",
+			[]string{"99.1%", "12%", "50%"},
+			[]string{"12%", "50%", "99.1%"},
+		},
+		{
+			"Mixed",
+			[]string{"0%", "0.5%", "0.2%"},
+			[]string{"0%", "0.2%", "0.5%"},
+		},
 	}
+
+	testSort(t, testCases, sortPercent)
+}
+
+func TestSortDate(t *testing.T) {
+	testCases := []TestCase{
+		{
+			"Ascending",
+			[]string{"2021-05-23T18:14:29.392Z", "2022-07-12T10:30:45.123Z", "2024-03-01T05:20:15.678Z"},
+			[]string{"2021-05-23T18:14:29.392Z", "2022-07-12T10:30:45.123Z", "2024-03-01T05:20:15.678Z"},
+		},
+		{
+			"Descending",
+			[]string{"2023-05-23T18:14:29.392Z", "2022-07-12T10:30:45.123Z", "2021-03-01T05:20:15.678Z"},
+			[]string{"2021-03-01T05:20:15.678Z", "2022-07-12T10:30:45.123Z", "2023-05-23T18:14:29.392Z"},
+		},
+		{
+			"Mixed",
+			[]string{"2024-03-01T05:20:15.678Z", "2022-07-12T10:30:45.123Z", "2023-05-23T18:14:29.392Z"},
+			[]string{"2022-07-12T10:30:45.123Z", "2023-05-23T18:14:29.392Z", "2024-03-01T05:20:15.678Z"},
+		},
+	}
+
+	testSort(t, testCases, sortDate)
 }

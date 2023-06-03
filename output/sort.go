@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func sortText(left, right string) bool {
@@ -22,7 +23,31 @@ func sortDataSize(left, right string) bool {
 	return size1 < size2
 }
 
+func sortPercent(val1, val2 string) bool {
+	parsedVal1, _ := strconv.ParseFloat(strings.TrimRight(val1, "%"), 64)
+	parsedVal2, _ := strconv.ParseFloat(strings.TrimRight(val2, "%"), 64)
+	return parsedVal1 < parsedVal2
+}
+
+func sortDate(val1, val2 string) bool {
+	time1, err := time.Parse("2006-01-02T15:04:05.999Z", val1)
+	if err != nil {
+		return false
+	}
+
+	time2, err := time.Parse("2006-01-02T15:04:05.999Z", val2)
+	if err != nil {
+		return false
+	}
+
+	return time1.Before(time2)
+}
+
 func parseDataSize(sizeStr string) (float64, error) {
+	if sizeStr == "" {
+		return 0, nil
+	}
+
 	sizeStr = strings.ToLower(sizeStr)
 	var value float64
 	var unit string

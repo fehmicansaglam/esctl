@@ -32,6 +32,10 @@ func compareValues(left, right string, columnType ColumnType) bool {
 		return sortNumber(left, right)
 	case DataSize:
 		return sortDataSize(left, right)
+	case Percent:
+		return sortPercent(left, right)
+	case Date:
+		return sortDate(left, right)
 	}
 	return false
 }

@@ -109,8 +109,8 @@ func handleNodeLogic() {
 		{Header: "MASTER", Type: output.Text},
 		{Header: "HEAP-MAX", Type: output.DataSize},
 		{Header: "HEAP-CURRENT", Type: output.DataSize},
-		{Header: "HEAP-PERCENT", Type: output.Text},
-		{Header: "CPU", Type: output.Text},
+		{Header: "HEAP-PERCENT", Type: output.Percent},
+		{Header: "CPU", Type: output.Percent},
 		{Header: "LOAD-1M", Type: output.Number},
 		{Header: "DISK-TOTAL", Type: output.DataSize},
 		{Header: "DISK-USED", Type: output.DataSize},
@@ -150,7 +150,7 @@ func handleIndexLogic() {
 		{Header: "REPLICAS", Type: output.Number},
 		{Header: "DOCS-COUNT", Type: output.Number},
 		{Header: "DOCS-DELETED", Type: output.Number},
-		{Header: "CREATION-DATE", Type: output.Text},
+		{Header: "CREATION-DATE", Type: output.Date},
 		{Header: "STORE-SIZE", Type: output.DataSize},
 		{Header: "PRI-STORE-SIZE", Type: output.DataSize},
 	}
@@ -228,7 +228,7 @@ func handleShardLogic() {
 		{Header: "NODE", Type: output.Text},
 		{Header: "NODE-ID", Type: output.Text},
 		{Header: "UNASSIGNED-REASON", Type: output.Text},
-		{Header: "UNASSIGNED-AT", Type: output.Text},
+		{Header: "UNASSIGNED-AT", Type: output.Date},
 		{Header: "SEGMENTS-COUNT", Type: output.Number},
 	}
 	data := [][]string{}
