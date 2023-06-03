@@ -107,16 +107,15 @@ func handleNodeLogic() {
 		{Header: "IP", Type: output.Text},
 		{Header: "NODE-ROLE", Type: output.Text},
 		{Header: "MASTER", Type: output.Text},
-		{Header: "HEAP-MAX", Type: output.Text},
-		{Header: "HEAP-CURRENT", Type: output.Text},
+		{Header: "HEAP-MAX", Type: output.DataSize},
+		{Header: "HEAP-CURRENT", Type: output.DataSize},
 		{Header: "HEAP-PERCENT", Type: output.Text},
 		{Header: "CPU", Type: output.Text},
-		{Header: "LOAD-1M", Type: output.Text},
-		{Header: "DISK-TOTAL", Type: output.Text},
-		{Header: "DISK-USED", Type: output.Text},
-		{Header: "DISK-AVAILABLE", Type: output.Text},
+		{Header: "LOAD-1M", Type: output.Number},
+		{Header: "DISK-TOTAL", Type: output.DataSize},
+		{Header: "DISK-USED", Type: output.DataSize},
+		{Header: "DISK-AVAILABLE", Type: output.DataSize},
 	}
-
 	data := [][]string{}
 
 	for _, node := range nodes {
@@ -147,13 +146,13 @@ func handleIndexLogic() {
 		{Header: "UUID", Type: output.Text},
 		{Header: "HEALTH", Type: output.Text},
 		{Header: "STATUS", Type: output.Text},
-		{Header: "SHARDS", Type: output.Text},
-		{Header: "REPLICAS", Type: output.Text},
-		{Header: "DOCS-COUNT", Type: output.Text},
-		{Header: "DOCS-DELETED", Type: output.Text},
+		{Header: "SHARDS", Type: output.Number},
+		{Header: "REPLICAS", Type: output.Number},
+		{Header: "DOCS-COUNT", Type: output.Number},
+		{Header: "DOCS-DELETED", Type: output.Number},
 		{Header: "CREATION-DATE", Type: output.Text},
-		{Header: "STORE-SIZE", Type: output.Text},
-		{Header: "PRI-STORE-SIZE", Type: output.Text},
+		{Header: "STORE-SIZE", Type: output.DataSize},
+		{Header: "PRI-STORE-SIZE", Type: output.DataSize},
 	}
 	data := [][]string{}
 
@@ -220,17 +219,17 @@ func handleShardLogic() {
 
 	columnDefs := []output.ColumnDef{
 		{Header: "INDEX", Type: output.Text},
-		{Header: "SHARD", Type: output.Text},
+		{Header: "SHARD", Type: output.Number},
 		{Header: "PRI-REP", Type: output.Text},
 		{Header: "STATE", Type: output.Text},
-		{Header: "DOCS", Type: output.Text},
-		{Header: "STORE", Type: output.Text},
+		{Header: "DOCS", Type: output.Number},
+		{Header: "STORE", Type: output.DataSize},
 		{Header: "IP", Type: output.Text},
 		{Header: "NODE", Type: output.Text},
 		{Header: "NODE-ID", Type: output.Text},
 		{Header: "UNASSIGNED-REASON", Type: output.Text},
 		{Header: "UNASSIGNED-AT", Type: output.Text},
-		{Header: "SEGMENTS-COUNT", Type: output.Text},
+		{Header: "SEGMENTS-COUNT", Type: output.Number},
 	}
 	data := [][]string{}
 
@@ -291,7 +290,7 @@ func handleTaskLogic() {
 
 	columnDefs := []output.ColumnDef{
 		{Header: "NODE", Type: output.Text},
-		{Header: "ID", Type: output.Text},
+		{Header: "ID", Type: output.Number},
 		{Header: "ACTION", Type: output.Text},
 	}
 	data := [][]string{}

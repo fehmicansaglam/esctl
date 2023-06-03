@@ -18,7 +18,7 @@ var setClusterCmd = &cobra.Command{
 
 var listClustersCmd = &cobra.Command{
 	Use:   "list-clusters",
-	Short: "List the clusters defined in the esctl.yaml file",
+	Short: "List the clusters defined in the esctl.yml file",
 	Run:   runListClusters,
 }
 

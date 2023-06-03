@@ -11,6 +11,7 @@ import (
 type ColumnDef struct {
 	Header string
 	Type   ColumnType
+	Sort   func(i, j int) bool
 }
 
 type ColumnType int
@@ -22,6 +23,18 @@ const (
 	DataSize
 	Date
 )
+
+func compareValues(left, right string, columnType ColumnType) bool {
+	switch columnType {
+	case Text:
+		return sortText(left, right)
+	case Number:
+		return sortNumber(left, right)
+	case DataSize:
+		return sortDataSize(left, right)
+	}
+	return false
+}
 
 func PrintTable(columnDefs []ColumnDef, data [][]string, sortByHeaders ...string) {
 	// Determine if a column is empty
@@ -47,10 +60,18 @@ func PrintTable(columnDefs []ColumnDef, data [][]string, sortByHeaders ...string
 		sort.SliceStable(data, func(i, j int) bool {
 			for _, header := range sortByHeaders {
 				col, exists := headerIndexMap[strings.ToLower(header)]
-				if exists && data[i][col] != data[j][col] {
-					return data[i][col] < data[j][col]
+				if !exists {
+					continue
 				}
+
+				left, right := data[i][col], data[j][col]
+				if left == right {
+					continue
+				}
+
+				return compareValues(left, right, columnDefs[col].Type)
 			}
+
 			return false
 		})
 	}
