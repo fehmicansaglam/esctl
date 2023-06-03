@@ -8,8 +8,8 @@
 
 ## Features:
 - Retrieve information about nodes, indices, shards, aliases, and tasks in an Elasticsearch cluster
+- Describe cluster health and stats
 - Filter and sort data based on various criteria
-- Perform read-only operations for cluster monitoring and analysis
 - Simple and intuitive command-line interface
 
 ## Contributing
@@ -53,7 +53,7 @@ articles  jxn-Oa3XSPigaCBYt9fKiw  2      primary  STARTED  0     225b   127.0.0.
 ```
 
 ```shell
-> esctl get shards --index=articles --shard 0 --unassigned
+> esctl get shards --index=articles --shard 0 --unassigned --sort-by=unassigned-at
 INDEX     SHARD  PRI-REP  STATE       UNASSIGNED-REASON  UNASSIGNED-AT
 articles  0      replica  UNASSIGNED  CLUSTER_RECOVERED  2023-05-07T20:37:07.520Z
 articles  0      replica  UNASSIGNED  CLUSTER_RECOVERED  2023-05-07T20:37:07.520Z
@@ -66,7 +66,7 @@ yellow  open    articles  8vCars4rQquYHNhpKV2fow  3    2    0           0       
 ```
 
 ```shell
-> esctl get nodes
+> esctl get nodes --sort-by=cpu
 NAME               IP         NODE-ROLE    MASTER  HEAP-MAX  HEAP-CURRENT  HEAP-PERCENT  CPU  LOAD-1M  DISK-TOTAL  DISK-USED  DISK-AVAILABLE
 es-data-0          127.0.0.1  cdfhilmrstw  *       4gb       1.6gb         41%           10%  2.02     232.9gb     199.2gb    33.6gb
 ```
@@ -108,25 +108,27 @@ In the configuration file:
   - `protocol`, `host`, `port`, `username`, and `password` are the connection details for each cluster.
   - `protocol` and `port` are optional and default to `http` and `9200` respectively.
 
-`esctl` will use the `current-cluster` defined in the configuration file unless another cluster is specified via command-line flag or environment variable.
+> **Note**<br>
+> `esctl` will use the `current-cluster` defined in the configuration file unless another cluster is specified via command-line flag or environment variable.
 
 ### set-cluster
 
 Sets the current cluster in the configuration file.
 
 ```bash
-esctl set-cluster <cluster>
+esctl set-cluster CLUSTER
 ```
 
-- `<cluster>`: The name of the cluster to set as the current cluster.
+- `CLUSTER`: The name of the cluster to set as the current cluster.
 
-This command updates the current cluster in the configuration file (`esctl.yml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
+This command updates the `current-cluster` in the configuration file (`esctl.yml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
 
-Note: The specified cluster name must already be defined in the configuration file.
+> **Note**<br>
+> The specified cluster name must already be defined in the configuration file.
 
 ### list-clusters
 
-The `list-clusters` command displays the clusters defined in the `esctl.yml` file.
+Displays the clusters defined in the `esctl.yml` file.
 
 ```bash
 esctl list-clusters
@@ -158,29 +160,32 @@ Additionally, `esctl` allows you to configure the Elasticsearch host, port, prot
 To specify a custom host, you can use the `--host` flag followed by the desired host value. For example:
 
 ```shell
-esctl --host=<your_host> <command>
+esctl --host=HOST COMMAND
 ```
 
 Similarly, to specify a custom port, you can use the `--port` flag followed by the desired port value. For example:
 
 ```shell
-esctl --port=<your_port> <command>
+esctl --port=PORT COMMAND
 ```
-To specify a custom protocol, you can use the --protocol flag followed by either http or https. For example:
+To specify a custom protocol, you can use the `--protocol` flag followed by either `http` or `https`. For example:
 
 ```shell
-esctl --protocol=https <command>
+esctl --protocol=https COMMAND
 ```
 
 To provide basic authentication credentials, you can use the `--username` and `--password` flags followed by the corresponding values. For example:
 
 ```shell
-esctl --username=<your_username> --password=<your_password> <command>
+esctl --username=USERNAME --password=PASSWORD COMMAND
 ```
 
 Alternatively, you can set the `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, `ELASTICSEARCH_PROTOCOL`, `ELASTICSEARCH_USERNAME`, and `ELASTICSEARCH_PASSWORD` environment variables to your desired Elasticsearch configuration.
 
 If the corresponding command-line flags and environment variables are not provided, `esctl` will use the default values (`9200`, `http`, no username, and no password) for the Elasticsearch connection.
+
+> **Warning**<br>
+> Since host is mandatory, if host is not provided via a flag, environment variable or esctl.yml, esctl will exit with an error.
 
 ## Usage
 
@@ -189,29 +194,29 @@ If the corresponding command-line flags and environment variables are not provid
 The `get` command allows you to retrieve information about Elasticsearch entities. Supported entities include nodes, indices, shards, aliases, and tasks. This command provides a read-only view of the cluster and does not support data querying.
 
 ```shell
-esctl get [entity] [flags]
+esctl get ENTITY [flags]
 ```
 
 #### Available Entities
 
-- `nodes`: List all nodes in the Elasticsearch cluster.
-- `indices`: List all indices in the Elasticsearch cluster.
-- `shards`: List detailed information about shards, including their sizes and placement.
-- `aliases`: List all aliases in the Elasticsearch cluster.
-- `tasks`: List all tasks in the Elasticsearch cluster.
+- `node` or `nodes`: List all nodes in the Elasticsearch cluster.
+- `index` or `indices`: List all indices in the Elasticsearch cluster.
+- `shard` or `shards`: List detailed information about shards, including their sizes and placement.
+- `alias` or `aliases`: List all aliases in the Elasticsearch cluster.
+- `task` or `tasks`: List all tasks in the Elasticsearch cluster.
 
 #### Flags
 
-- `--index`: Specifies the name of the index (applies to `indices`, `shards`, and `aliases` entities).
-- `--node`: Filters shards by node name (applies to `shards` entity).
-- `--shard`: Filters shards by shard number (applies to `shards` entity).
-- `--primary`: Filters primary shards (applies to `shards` entity).
-- `--replica`: Filters replica shards (applies to `shards` entity).
-- `--started`: Filters shards in STARTED state (applies to `shards` entity).
-- `--relocating`: Filters shards in RELOCATING state (applies to `shards` entity).
-- `--initializing`: Filters shards in INITIALIZING state (applies to `shards` entity).
-- `--unassigned`: Filters shards in UNASSIGNED state (applies to `shards` entity).
-- `--actions`: Filters tasks by actions (applies to `tasks` entity).
+- `--index`: Specifies the name of the index (applies to `index`, `shard`, and `alias` entities).
+- `--node`: Filters shards by node name.
+- `--shard`: Filters shards by shard number.
+- `--primary`: Filters primary shards.
+- `--replica`: Filters replica shards.
+- `--started`: Filters shards in STARTED state.
+- `--relocating`: Filters shards in RELOCATING state.
+- `--initializing`: Filters shards in INITIALIZING state.
+- `--unassigned`: Filters shards in UNASSIGNED state.
+- `--actions`: Filters tasks by actions.
 - `--sort-by`: Specifies the columns to sort by, separated by commas (applies to all entities).
 
 
@@ -236,12 +241,12 @@ esctl get indices
 To retrieve shards from Elasticsearch, you can use the following command:
 
 ```shell
-esctl get shards [--index <index_name>] [--node <node_name>] [--shard <shard>] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
+esctl get shards [--index INDEX] [--node NODE] [--shard SHARD] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
 ```
 
-* `--index <index_name>`: Specifies the name of the index to retrieve shards from.
-* `--node <node_name>`: Filters shards by node name.
-* `--shard <shard>`: Filters shards by shard number.
+* `--index INDEX`: Specifies the name of the index to retrieve shards from.
+* `--node NODE`: Filters shards by node name.
+* `--shard SHARD`: Filters shards by shard number.
 * `--primary`: Filters primary shards.
 * `--replica`: Filters replica shards.
 * `--started`: Filters shards in the STARTED state.
@@ -265,12 +270,10 @@ Retrieves the list of aliases defined in Elasticsearch, including the index name
 Usage:
 
 ```shell
-esctl get aliases [--index <index_name>]
+esctl get aliases [--index INDEX]
 ```
 
-Options:
-
-`--index`: (optional) Filter the aliases by a specific index. If not provided, aliases from all indices will be returned.
+`--index`: Filter the aliases by a specific index. If not provided, aliases to all indices will be returned.
 
 #### Get Tasks
 
@@ -279,7 +282,7 @@ The `get tasks` command retrieves information about tasks in the Elasticsearch c
 Usage:
 
 ```shell
-esctl get tasks [--actions <actions>...]
+esctl get tasks [--actions ACTIONS]
 ```
 
 Example:
