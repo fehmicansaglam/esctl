@@ -291,9 +291,10 @@ Example:
 esctl get tasks --actions 'index*' --actions '*search*'
 
 ```
+
 ### Describe
 
-The `esctl describe` command allows you to retrieve detailed information about various entities in the Elasticsearch cluster. The output is in YAML format, making it easy to read and understand.
+The `esctl describe` command allows you to retrieve detailed information about various entities in the Elasticsearch cluster. The output is in JSON or YAML format, making it easy to read and understand.
 
 #### Describe Cluster
 
@@ -301,6 +302,23 @@ This command outputs the cluster information in YAML format, providing a compreh
 
 ```shell
 esctl describe cluster
+```
+
+#### Describe Index
+
+This command outputs the mappings of a specified index in JSON format.
+
+```shell
+esctl describe index INDEX
+```
+
+Replace `INDEX` with the name of the index you want to describe. The output will include the mappings of the index.
+
+> **Note**<br>
+> Consider piping the output of `describe index` to [fx](https://github.com/antonmedv/fx), a command-line JSON processing tool, for a more convenient experience.
+
+```shell
+esctl describe index INDEX | fx
 ```
 
 ## License
