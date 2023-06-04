@@ -1,5 +1,20 @@
 package es
 
+import "fmt"
+
+type MappingResponse map[string]interface{}
+
+func GetIndexMappings(index string) (MappingResponse, error) {
+	endpoint := fmt.Sprintf("%s/_mappings", index)
+
+	var mappingResponse MappingResponse
+	if err := getJSONResponse(endpoint, &mappingResponse); err != nil {
+		return nil, err
+	}
+
+	return mappingResponse, nil
+}
+
 type AliasResponse map[string]AliasDetail
 
 type AliasDetail struct {

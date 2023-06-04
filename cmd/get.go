@@ -224,9 +224,11 @@ func handleShardLogic() {
 	data := [][]string{}
 
 	for _, shard := range shards {
-		if includeShardByState(shard) && includeShardByNumber(shard) && includeShardByPriRep(shard) && includeShardByNode(shard) {
+		if includeShardByState(shard) && includeShardByNumber(shard) &&
+			includeShardByPriRep(shard) && includeShardByNode(shard) {
 			row := []string{
-				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store, shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
+				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store,
+				shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
 			}
 			data = append(data, row)
 		}
@@ -282,12 +284,15 @@ func handleTaskLogic() {
 		{Header: "NODE", Type: output.Text},
 		{Header: "ID", Type: output.Number},
 		{Header: "ACTION", Type: output.Text},
+		{Header: "START-TIME", Type: output.Number},
+		{Header: "RUNNING-TIME", Type: output.Number},
 	}
 	data := [][]string{}
 
 	for _, node := range tasksResponse.Nodes {
 		for _, task := range node.Tasks {
-			row := []string{task.Node, fmt.Sprintf("%d", task.ID), task.Action}
+			row := []string{task.Node, fmt.Sprintf("%d", task.ID), task.Action,
+				fmt.Sprintf("%d", task.StartTimeInMillis), fmt.Sprintf("%d", task.RunningTimeInNanos)}
 			data = append(data, row)
 		}
 	}
