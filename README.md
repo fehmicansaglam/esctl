@@ -306,13 +306,21 @@ esctl describe cluster
 
 #### Describe Index
 
-This command outputs the mappings of a specified index in JSON format.
+This command outputs the mappings and settings of a specified index in JSON format.
 
 ```shell
 esctl describe index INDEX
 ```
 
-Replace `INDEX` with the name of the index you want to describe. The output will include the mappings of the index.
+This command also supports the `--mappings` and `--settings` flags, which can be used to get only the mappings or settings respectively.
+
+```shell
+# To get only mappings
+esctl describe index INDEX --mappings
+
+# To get only settings
+esctl describe index INDEX --settings
+```
 
 > **Note**<br>
 > Consider piping the output of `describe index` to [fx](https://github.com/antonmedv/fx), a command-line JSON processing tool, for a more convenient experience.

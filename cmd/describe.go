@@ -11,6 +11,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	flagMappings bool
+	flagSettings bool
+)
+
 var describeCmd = &cobra.Command{
 	Short:     "Print detailed information about an entity",
 	Args:      cobra.RangeArgs(1, 2),
@@ -46,18 +51,24 @@ func handleDescribeCluster() {
 }
 
 func handleDescribeIndex(index string) {
-	mappings, err := es.GetIndexMappings(index)
+	shouldGetMappings := flagMappings || !flagSettings
+	shouldGetSettings := flagSettings || !flagMappings
 
+	details, err := es.GetIndexDetails(index, shouldGetMappings, shouldGetSettings)
 	if err != nil {
-		fmt.Println("Failed to retrieve cluster information:", err)
+		fmt.Println("Failed to retrieve index details:", err)
 		return
 	}
 
-	output.PrintJson(mappings)
+	output.PrintJson(details)
 }
 
 func init() {
 	describeCmd.Use = fmt.Sprintf(`describe [%s] [NAME]`, strings.Join(describeCmd.ValidArgs, "|"))
 	describeCmd.Long = fmt.Sprintf("Print detailed information about the specified entity.\nAvailable entities: %s.", strings.Join(describeCmd.ValidArgs, ", "))
+
+	describeCmd.Flags().BoolVar(&flagMappings, "mappings", false, "If set, retrieve and print index mappings")
+	describeCmd.Flags().BoolVar(&flagSettings, "settings", false, "If set, retrieve and print index settings")
+
 	rootCmd.AddCommand(describeCmd)
 }

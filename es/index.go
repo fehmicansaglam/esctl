@@ -2,17 +2,66 @@ package es
 
 import "fmt"
 
-type MappingResponse map[string]interface{}
+type IndexMappings struct {
+	Mappings interface{} `json:"mappings"`
+}
 
-func GetIndexMappings(index string) (MappingResponse, error) {
-	endpoint := fmt.Sprintf("%s/_mappings", index)
+type IndexSettings struct {
+	Settings interface{} `json:"settings"`
+}
 
-	var mappingResponse MappingResponse
-	if err := getJSONResponse(endpoint, &mappingResponse); err != nil {
-		return nil, err
+type MappingsResponse map[string]IndexMappings
+type SettingsResponse map[string]IndexSettings
+
+type IndexDetails struct {
+	Settings interface{} `json:"settings,omitempty"`
+	Mappings interface{} `json:"mappings,omitempty"`
+}
+
+type IndexDetailsResponse map[string]IndexDetails
+
+func GetIndexDetails(index string, shouldGetMappings, shouldGetSettings bool) (IndexDetailsResponse, error) {
+	var mappingsResponse MappingsResponse
+	var settingsResponse SettingsResponse
+
+	if shouldGetMappings {
+		mappingsEndpoint := fmt.Sprintf("%s/_mappings", index)
+		if err := getJSONResponse(mappingsEndpoint, &mappingsResponse); err != nil {
+			return nil, fmt.Errorf("failed to get index mappings: %w", err)
+		}
 	}
 
-	return mappingResponse, nil
+	if shouldGetSettings {
+		settingsEndpoint := fmt.Sprintf("%s/_settings", index)
+		if err := getJSONResponse(settingsEndpoint, &settingsResponse); err != nil {
+			return nil, fmt.Errorf("failed to get index settings: %w", err)
+		}
+	}
+
+	// Merge settings and mappings.
+	merged := make(IndexDetailsResponse)
+	for index, indexMappings := range mappingsResponse {
+		details := IndexDetails{
+			Mappings: indexMappings.Mappings,
+		}
+
+		if indexSettings, ok := settingsResponse[index]; ok {
+			details.Settings = indexSettings.Settings
+		}
+
+		merged[index] = details
+	}
+
+	// Process settings for indices that don't exist in mappings.
+	for index, indexSettings := range settingsResponse {
+		if _, exists := merged[index]; !exists {
+			merged[index] = IndexDetails{
+				Settings: indexSettings.Settings, // Only settings are added.
+			}
+		}
+	}
+
+	return merged, nil
 }
 
 type AliasResponse map[string]AliasDetail
