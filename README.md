@@ -180,7 +180,7 @@ To provide basic authentication credentials, you can use the `--username` and `-
 esctl --username=USERNAME --password=PASSWORD COMMAND
 ```
 
-Alternatively, you can set the `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, `ELASTICSEARCH_PROTOCOL`, `ELASTICSEARCH_USERNAME`, and `ELASTICSEARCH_PASSWORD` environment variables to your desired Elasticsearch configuration.
+Alternatively, you can set the `ESCTL_HOST`, `ESCTL_PORT`, `ESCTL_PROTOCOL`, `ESCTL_USERNAME`, and `ESCTL_PASSWORD` environment variables to your desired Elasticsearch configuration.
 
 If the corresponding command-line flags and environment variables are not provided, `esctl` will use the default values (`9200`, `http`, no username, and no password) for the Elasticsearch connection.
 
