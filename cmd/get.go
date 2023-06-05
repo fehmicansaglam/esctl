@@ -100,19 +100,24 @@ func handleNodeLogic() {
 		{Header: "HEAP-MAX", Type: output.DataSize},
 		{Header: "HEAP-CURRENT", Type: output.DataSize},
 		{Header: "HEAP-PERCENT", Type: output.Percent},
+		{Header: "RAM-MAX", Type: output.DataSize},
+		{Header: "RAM-CURRENT", Type: output.DataSize},
+		{Header: "RAM-PERCENT", Type: output.Percent},
 		{Header: "CPU", Type: output.Percent},
 		{Header: "LOAD-1M", Type: output.Number},
 		{Header: "DISK-TOTAL", Type: output.DataSize},
 		{Header: "DISK-USED", Type: output.DataSize},
 		{Header: "DISK-AVAILABLE", Type: output.DataSize},
+		{Header: "UPTIME", Type: output.Text},
 	}
 	data := [][]string{}
 
 	for _, node := range nodes {
 		row := []string{
 			node.Name, node.IP, node.NodeRole, node.Master, node.HeapMax, node.HeapCurrent,
-			node.HeapPercent + "%", node.CPU + "%", node.Load1m,
-			node.DiskTotal, node.DiskUsed, node.DiskAvail,
+			node.HeapPercent + "%", node.RAMMax, node.RAMCurrent, node.RAMPercent + "%",
+			node.CPU + "%", node.Load1m, node.DiskTotal, node.DiskUsed, node.DiskAvail,
+			node.Uptime,
 		}
 		data = append(data, row)
 	}
