@@ -9,7 +9,7 @@
 ## Features:
 - Retrieve information about nodes, indices, shards, aliases, and tasks in an Elasticsearch cluster
 - Describe cluster health and stats
-- Filter and sort data based on various criteria
+- Describe index settings and mappings
 - Simple and intuitive command-line interface
 
 ## Contributing
