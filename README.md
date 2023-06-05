@@ -294,7 +294,7 @@ esctl get tasks --actions 'index*' --actions '*search*'
 
 ### Describe
 
-The `esctl describe` command allows you to retrieve detailed information about various entities in the Elasticsearch cluster. The output is in JSON or YAML format, making it easy to read and understand.
+The `esctl describe` command allows you to retrieve detailed information about various entities in the Elasticsearch cluster. The output is in JSON or YAML format, making it easy to read and understand. You can select your preferred output format using the `--output` or `-o` flag, with `json` and `yaml` being the available options.
 
 #### Describe Cluster
 

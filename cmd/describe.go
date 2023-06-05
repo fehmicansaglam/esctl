@@ -14,6 +14,7 @@ import (
 var (
 	flagMappings bool
 	flagSettings bool
+	flagOutput   string
 )
 
 var describeCmd = &cobra.Command{
@@ -47,7 +48,7 @@ func handleDescribeCluster() {
 		return
 	}
 
-	output.PrintYaml(cluster)
+	print(cluster)
 }
 
 func handleDescribeIndex(index string) {
@@ -60,7 +61,19 @@ func handleDescribeIndex(index string) {
 		return
 	}
 
-	output.PrintJson(details)
+	print(details)
+}
+
+func print(data interface{}) {
+	switch flagOutput {
+	case "json":
+		output.PrintJson(data)
+	case "yaml":
+		output.PrintYaml(data)
+	default:
+		fmt.Printf("Unknown output type: %s\n", flagOutput)
+		os.Exit(1)
+	}
 }
 
 func init() {
@@ -69,6 +82,7 @@ func init() {
 
 	describeCmd.Flags().BoolVar(&flagMappings, "mappings", false, "If set, retrieve and print index mappings")
 	describeCmd.Flags().BoolVar(&flagSettings, "settings", false, "If set, retrieve and print index settings")
+	describeCmd.Flags().StringVarP(&flagOutput, "output", "o", "json", "Print output as json or yaml")
 
 	rootCmd.AddCommand(describeCmd)
 }
