@@ -3,13 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/shared"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var rootCmd = &cobra.Command{
@@ -40,47 +38,6 @@ func initialize() {
 		config := parseConfigFile()
 		readClusterFromConfig(config)
 	}
-}
-
-type Cluster struct {
-	Name     string `mapstructure:"name"`
-	Protocol string `mapstructure:"protocol"`
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Username string `mapstructure:"username"`
-	Password string `mapstructure:"password"`
-}
-
-type Config struct {
-	CurrentCluster string    `mapstructure:"current-cluster"`
-	Clusters       []Cluster `mapstructure:"clusters"`
-}
-
-func parseConfigFile() Config {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Printf("Error getting user's home directory: %v\n", err)
-		os.Exit(1)
-	}
-
-	viper.AddConfigPath(filepath.Join(home, ".config"))
-	viper.SetConfigName("esctl")
-	viper.SetConfigType("yml")
-
-	err = viper.ReadInConfig()
-	if err != nil {
-		fmt.Printf("Error reading config file: %s\n", err)
-		os.Exit(1)
-	}
-
-	var config Config
-	err = viper.Unmarshal(&config)
-	if err != nil {
-		fmt.Printf("Error unmarshaling config into struct: %v\n", err)
-		os.Exit(1)
-	}
-
-	return config
 }
 
 func readClusterFromConfig(config Config) {

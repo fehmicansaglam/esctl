@@ -3,10 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/fehmicansaglam/esctl/constants"
-	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
 	"github.com/spf13/cobra"
 )
@@ -67,17 +65,19 @@ esctl get tasks`),
 	Run: func(cmd *cobra.Command, args []string) {
 		entity := args[0]
 
+		config := parseConfigFile()
+
 		switch entity {
 		case constants.EntityNode, constants.EntityNodes:
-			handleNodeLogic()
+			handleNodeLogic(config)
 		case constants.EntityIndex, constants.EntityIndices:
-			handleIndexLogic()
+			handleIndexLogic(config)
 		case constants.EntityShard, constants.EntityShards:
-			handleShardLogic()
+			handleShardLogic(config)
 		case constants.EntityAlias, constants.EntityAliases:
-			handleAliasLogic()
+			handleAliasLogic(config)
 		case constants.EntityTask, constants.EntityTasks:
-			handleTaskLogic()
+			handleTaskLogic(config)
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			os.Exit(1)
@@ -85,228 +85,29 @@ esctl get tasks`),
 	},
 }
 
-func handleNodeLogic() {
-	nodes, err := es.GetNodes()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve nodes:", err)
-		os.Exit(1)
+func getColumnDefs(config Config, entity string, defaultColumns []output.ColumnDef) []output.ColumnDef {
+	entityConfig, ok := config.Entities[entity]
+	if !ok || len(entityConfig.Columns) == 0 {
+		return defaultColumns
 	}
 
-	columnDefs := []output.ColumnDef{
-		{Header: "NAME", Type: output.Text},
-		{Header: "IP", Type: output.Text},
-		{Header: "NODE-ROLE", Type: output.Text},
-		{Header: "MASTER", Type: output.Text},
-		{Header: "HEAP-MAX", Type: output.DataSize},
-		{Header: "HEAP-CURRENT", Type: output.DataSize},
-		{Header: "HEAP-PERCENT", Type: output.Percent},
-		{Header: "RAM-MAX", Type: output.DataSize},
-		{Header: "RAM-CURRENT", Type: output.DataSize},
-		{Header: "RAM-PERCENT", Type: output.Percent},
-		{Header: "CPU", Type: output.Percent},
-		{Header: "LOAD-1M", Type: output.Number},
-		{Header: "DISK-TOTAL", Type: output.DataSize},
-		{Header: "DISK-USED", Type: output.DataSize},
-		{Header: "DISK-AVAILABLE", Type: output.DataSize},
-		{Header: "UPTIME", Type: output.Text},
-	}
-	data := [][]string{}
-
-	for _, node := range nodes {
-		row := []string{
-			node.Name, node.IP, node.NodeRole, node.Master, node.HeapMax, node.HeapCurrent,
-			node.HeapPercent + "%", node.RAMMax, node.RAMCurrent, node.RAMPercent + "%",
-			node.CPU + "%", node.Load1m, node.DiskTotal, node.DiskUsed, node.DiskAvail,
-			node.Uptime,
-		}
-		data = append(data, row)
-	}
-
-	if len(flagSortBy) > 0 {
-		output.PrintTable(columnDefs, data, flagSortBy...)
-	} else {
-		output.PrintTable(columnDefs, data, "NAME")
-	}
-}
-
-func handleIndexLogic() {
-	indices, err := es.GetIndices(flagIndex)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve indices:", err)
-		os.Exit(1)
-	}
-
-	columnDefs := []output.ColumnDef{
-		{Header: "INDEX", Type: output.Text},
-		{Header: "UUID", Type: output.Text},
-		{Header: "HEALTH", Type: output.Text},
-		{Header: "STATUS", Type: output.Text},
-		{Header: "SHARDS", Type: output.Number},
-		{Header: "REPLICAS", Type: output.Number},
-		{Header: "DOCS-COUNT", Type: output.Number},
-		{Header: "DOCS-DELETED", Type: output.Number},
-		{Header: "CREATION-DATE", Type: output.Date},
-		{Header: "STORE-SIZE", Type: output.DataSize},
-		{Header: "PRI-STORE-SIZE", Type: output.DataSize},
-	}
-	data := [][]string{}
-
-	for _, index := range indices {
-		row := []string{
-			index.Index, index.UUID, index.Health, index.Status, index.Pri, index.Rep,
-			index.DocsCount, index.DocsDeleted, index.CreationDate, index.StoreSize, index.PriStoreSize,
-		}
-		data = append(data, row)
-	}
-
-	if len(flagSortBy) > 0 {
-		output.PrintTable(columnDefs, data, flagSortBy...)
-	} else {
-		output.PrintTable(columnDefs, data, "INDEX")
-	}
-}
-
-func includeShardByState(shard es.Shard) bool {
-	switch {
-	case flagStarted && shard.State == constants.ShardStateStarted:
-		return true
-	case flagRelocating && shard.State == constants.ShardStateRelocating:
-		return true
-	case flagInitializing && shard.State == constants.ShardStateInitializing:
-		return true
-	case flagUnassigned && shard.State == constants.ShardStateUnassigned:
-		return true
-	case !flagStarted && !flagRelocating && !flagInitializing && !flagUnassigned:
-		return true
-	}
-	return false
-}
-
-func includeShardByNumber(shard es.Shard) bool {
-	shardNumber, err := strconv.Atoi(shard.Shard)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to parse shard number:", err)
-		os.Exit(1)
-	}
-	return flagShard == -1 || flagShard == shardNumber
-}
-
-func includeShardByPriRep(shard es.Shard) bool {
-	return (flagPrimary && shard.PriRep == constants.ShardPrimary) ||
-		(flagReplica && shard.PriRep == constants.ShardReplica) ||
-		(!flagPrimary && !flagReplica)
-}
-
-func includeShardByNode(shard es.Shard) bool {
-	if flagNode == "" {
-		return true
-	}
-
-	return shard.Node == flagNode
-}
-
-func handleShardLogic() {
-	shards, err := es.GetShards(flagIndex)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve shards:", err)
-		os.Exit(1)
-	}
-
-	columnDefs := []output.ColumnDef{
-		{Header: "INDEX", Type: output.Text},
-		{Header: "SHARD", Type: output.Number},
-		{Header: "PRI-REP", Type: output.Text},
-		{Header: "STATE", Type: output.Text},
-		{Header: "DOCS", Type: output.Number},
-		{Header: "STORE", Type: output.DataSize},
-		{Header: "IP", Type: output.Text},
-		{Header: "NODE", Type: output.Text},
-		{Header: "NODE-ID", Type: output.Text},
-		{Header: "UNASSIGNED-REASON", Type: output.Text},
-		{Header: "UNASSIGNED-AT", Type: output.Date},
-		{Header: "SEGMENTS-COUNT", Type: output.Number},
-	}
-	data := [][]string{}
-
-	for _, shard := range shards {
-		if includeShardByState(shard) && includeShardByNumber(shard) &&
-			includeShardByPriRep(shard) && includeShardByNode(shard) {
-			row := []string{
-				shard.Index, shard.Shard, humanizePriRep(shard.PriRep), shard.State, shard.Docs, shard.Store,
-				shard.IP, shard.Node, shard.ID, shard.UnassignedReason, shard.UnassignedAt, shard.SegmentsCount,
+	columnDefs := make([]output.ColumnDef, 0, len(entityConfig.Columns))
+	for _, configColumn := range entityConfig.Columns {
+		var found bool
+		for _, defaultColumn := range defaultColumns {
+			if defaultColumn.Header == configColumn {
+				columnDefs = append(columnDefs, defaultColumn)
+				found = true
+				break
 			}
-			data = append(data, row)
+		}
+		if !found {
+			fmt.Fprintf(os.Stderr, "Unknown column: %s\n", configColumn)
+			os.Exit(1)
 		}
 	}
 
-	if len(flagSortBy) > 0 {
-		output.PrintTable(columnDefs, data, flagSortBy...)
-	} else {
-		output.PrintTable(columnDefs, data, "INDEX", "SHARD", "PRI-REP")
-	}
-}
-
-func humanizePriRep(priRep string) string {
-	switch priRep {
-	case constants.ShardPrimary:
-		return "primary"
-	case constants.ShardReplica:
-		return "replica"
-	default:
-		return priRep
-	}
-}
-
-func handleAliasLogic() {
-	aliases, err := es.GetAliases(flagIndex)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve aliases:", err)
-		os.Exit(1)
-	}
-
-	columnDefs := []output.ColumnDef{
-		{Header: "ALIAS", Type: output.Text},
-		{Header: "INDEX", Type: output.Text},
-	}
-	data := [][]string{}
-
-	for alias, index := range aliases {
-		row := []string{alias, index}
-		data = append(data, row)
-	}
-
-	output.PrintTable(columnDefs, data, flagSortBy...)
-}
-
-func handleTaskLogic() {
-	tasksResponse, err := es.GetTasks(flagActions)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to retrieve tasks:", err)
-		os.Exit(1)
-	}
-
-	columnDefs := []output.ColumnDef{
-		{Header: "NODE", Type: output.Text},
-		{Header: "ID", Type: output.Number},
-		{Header: "ACTION", Type: output.Text},
-		{Header: "START-TIME", Type: output.Number},
-		{Header: "RUNNING-TIME", Type: output.Number},
-	}
-	data := [][]string{}
-
-	for _, node := range tasksResponse.Nodes {
-		for _, task := range node.Tasks {
-			row := []string{task.Node, fmt.Sprintf("%d", task.ID), task.Action,
-				fmt.Sprintf("%d", task.StartTimeInMillis), fmt.Sprintf("%d", task.RunningTimeInNanos)}
-			data = append(data, row)
-		}
-	}
-
-	if len(flagSortBy) > 0 {
-		output.PrintTable(columnDefs, data, flagSortBy...)
-	} else {
-		output.PrintTable(columnDefs, data, "NODE", "ID")
-	}
+	return columnDefs
 }
 
 func init() {

@@ -11,7 +11,6 @@ import (
 type ColumnDef struct {
 	Header string
 	Type   ColumnType
-	Sort   func(i, j int) bool
 }
 
 type ColumnType int

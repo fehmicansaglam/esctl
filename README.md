@@ -187,6 +187,43 @@ If the corresponding command-line flags and environment variables are not provid
 > **Warning**<br>
 > Since host is mandatory, if host is not provided via a flag, environment variable or esctl.yml, esctl will exit with an error.
 
+### Customizing Columns
+
+You can customize the columns displayed when running `esctl get ENTITY` using the `esctl.yml` configuration file.
+
+To customize the columns, add an optional `entities` field to the `esctl.yml` file. Under `entities`, specify the desired entities (`node`, `index`, `shard`, `alias`, `task`) and their corresponding columns. Here is an example:
+
+```yaml
+clusters:
+  - host: localhost
+    name: cluster1
+    port: 9200
+    protocol: http
+  - host: 127.0.0.1
+    name: cluster2
+current-cluster: cluster2
+entities:
+  node:
+    columns:
+      - "NAME"
+      - "IP"
+      - "NODE-ROLE"
+      - "MASTER"
+      - "HEAP-MAX"
+      - "HEAP-CURRENT"
+      - "CPU"
+      - "LOAD-1M"
+  index:
+    columns: []
+  task:
+    columns: []
+```
+
+In the `columns` field of each entity, specify the desired columns in the order you want them to appear.
+
+> **Note**<br>
+> If you do not provide a `columns` field for an entity, it will use the default columns.
+
 ## Usage
 
 ### Get
