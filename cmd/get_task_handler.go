@@ -23,7 +23,11 @@ func handleTaskLogic(config Config) {
 		os.Exit(1)
 	}
 
-	columnDefs := getColumnDefs(config, "task", taskColumns)
+	columnDefs, err := getColumnDefs(config, "task", taskColumns)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
+		os.Exit(1)
+	}
 
 	data := [][]string{}
 

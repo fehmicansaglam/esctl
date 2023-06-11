@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/output"
@@ -21,6 +22,7 @@ var (
 	flagUnassigned   bool
 	flagActions      []string
 	flagSortBy       []string
+	flagColumns      []string
 )
 
 var getCmd = &cobra.Command{
@@ -85,29 +87,39 @@ esctl get tasks`),
 	},
 }
 
-func getColumnDefs(config Config, entity string, defaultColumns []output.ColumnDef) []output.ColumnDef {
-	entityConfig, ok := config.Entities[entity]
-	if !ok || len(entityConfig.Columns) == 0 {
-		return defaultColumns
-	}
-
-	columnDefs := make([]output.ColumnDef, 0, len(entityConfig.Columns))
-	for _, configColumn := range entityConfig.Columns {
+func buildColumnDefs(columns []string, defaultColumns []output.ColumnDef) ([]output.ColumnDef, error) {
+	columnDefs := make([]output.ColumnDef, 0, len(columns))
+	for _, column := range columns {
 		var found bool
 		for _, defaultColumn := range defaultColumns {
-			if defaultColumn.Header == configColumn {
+			if strings.EqualFold(defaultColumn.Header, column) {
 				columnDefs = append(columnDefs, defaultColumn)
 				found = true
 				break
 			}
 		}
 		if !found {
-			fmt.Fprintf(os.Stderr, "Unknown column: %s\n", configColumn)
-			os.Exit(1)
+			return nil, fmt.Errorf("unknown column: %s", column)
 		}
 	}
+	return columnDefs, nil
+}
 
-	return columnDefs
+func getColumnDefs(config Config, entity string, defaultColumns []output.ColumnDef) ([]output.ColumnDef, error) {
+	if len(flagColumns) > 0 {
+		for _, column := range flagColumns {
+			if strings.EqualFold(column, "all") {
+				return defaultColumns, nil
+			}
+		}
+		return buildColumnDefs(flagColumns, defaultColumns)
+	} else {
+		entityConfig, ok := config.Entities[entity]
+		if !ok || len(entityConfig.Columns) == 0 {
+			return defaultColumns, nil
+		}
+		return buildColumnDefs(entityConfig.Columns, defaultColumns)
+	}
 }
 
 func init() {
@@ -123,4 +135,5 @@ func init() {
 	getCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
 	getCmd.Flags().StringSliceVar(&flagActions, "actions", []string{}, "Filter tasks by actions")
 	getCmd.Flags().StringSliceVar(&flagSortBy, "sort-by", []string{}, "Columns to sort by (comma-separated)")
+	getCmd.Flags().StringSliceVar(&flagColumns, "columns", []string{}, "Columns to display (comma-separated) or 'all'")
 }

@@ -60,12 +60,16 @@ func PrintTable(columnDefs []ColumnDef, data [][]string, sortByHeaders ...string
 			headerIndexMap[strings.ToLower(columnDef.Header)] = i
 		}
 
+		for _, header := range sortByHeaders {
+			if _, exists := headerIndexMap[strings.ToLower(header)]; !exists {
+				fmt.Fprintf(os.Stderr, "header '%s' is not a valid column\n", header)
+				os.Exit(1)
+			}
+		}
+
 		sort.SliceStable(data, func(i, j int) bool {
 			for _, header := range sortByHeaders {
-				col, exists := headerIndexMap[strings.ToLower(header)]
-				if !exists {
-					continue
-				}
+				col := headerIndexMap[strings.ToLower(header)]
 
 				left, right := data[i][col], data[j][col]
 				if left == right {

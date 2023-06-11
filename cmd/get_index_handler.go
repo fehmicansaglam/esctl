@@ -29,7 +29,11 @@ func handleIndexLogic(config Config) {
 		os.Exit(1)
 	}
 
-	columnDefs := getColumnDefs(config, "index", indexColumns)
+	columnDefs, err := getColumnDefs(config, "index", indexColumns)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
+		os.Exit(1)
+	}
 
 	data := [][]string{}
 

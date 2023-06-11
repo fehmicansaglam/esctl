@@ -20,7 +20,11 @@ func handleAliasLogic(config Config) {
 		os.Exit(1)
 	}
 
-	columnDefs := getColumnDefs(config, "alias", aliasColumns)
+	columnDefs, err := getColumnDefs(config, "alias", aliasColumns)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
+		os.Exit(1)
+	}
 
 	data := [][]string{}
 

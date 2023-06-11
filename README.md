@@ -254,8 +254,8 @@ esctl get ENTITY [flags]
 - `--initializing`: Filters shards in INITIALIZING state.
 - `--unassigned`: Filters shards in UNASSIGNED state.
 - `--actions`: Filters tasks by actions.
-- `--sort-by`: Specifies the columns to sort by, separated by commas (applies to all entities).
-
+- `--sort-by`: Specifies the columns to sort by, separated by commas (applies to all entities). The column names are case insensitive.
+- `--columns`: Specifies the columns to display, separated by commas (applies to all entities). To display all columns, use `all`. The column names are case insensitive.
 
 #### Get Nodes
 

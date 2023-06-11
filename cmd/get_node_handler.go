@@ -34,7 +34,11 @@ func handleNodeLogic(config Config) {
 		os.Exit(1)
 	}
 
-	columnDefs := getColumnDefs(config, "node", nodeColumns)
+	columnDefs, err := getColumnDefs(config, "node", nodeColumns)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
+		os.Exit(1)
+	}
 
 	data := [][]string{}
 

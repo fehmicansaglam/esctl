@@ -82,7 +82,11 @@ func handleShardLogic(config Config) {
 		os.Exit(1)
 	}
 
-	columnDefs := getColumnDefs(config, "shard", shardColumns)
+	columnDefs, err := getColumnDefs(config, "shard", shardColumns)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
+		os.Exit(1)
+	}
 
 	data := [][]string{}
 

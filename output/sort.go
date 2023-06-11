@@ -26,7 +26,7 @@ func sortDataSize(left, right string) bool {
 func sortPercent(val1, val2 string) bool {
 	parsedVal1, _ := strconv.ParseFloat(strings.TrimRight(val1, "%"), 64)
 	parsedVal2, _ := strconv.ParseFloat(strings.TrimRight(val2, "%"), 64)
-	return parsedVal1 < parsedVal2
+	return parsedVal1 > parsedVal2
 }
 
 func sortDate(val1, val2 string) bool {
