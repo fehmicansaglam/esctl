@@ -20,7 +20,7 @@ var (
 var describeCmd = &cobra.Command{
 	Short:     "Print detailed information about an entity",
 	Args:      cobra.RangeArgs(1, 2),
-	ValidArgs: []string{"cluster", "index"},
+	ValidArgs: []string{"cluster", "index", "node"},
 	Run: func(cmd *cobra.Command, args []string) {
 		entity := args[0]
 		switch entity {
@@ -33,6 +33,12 @@ var describeCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			handleDescribeIndex(args[1])
+		case constants.EntityNode:
+			node := ""
+			if len(args) == 2 {
+				node = args[1]
+			}
+			handleDescribeNode(node)
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			cmd.Help()
@@ -62,6 +68,16 @@ func handleDescribeIndex(index string) {
 	}
 
 	print(details)
+}
+
+func handleDescribeNode(node string) {
+	nodeDetails, err := es.GetNodeDetails(node)
+	if err != nil {
+		fmt.Println("Failed to retrieve node details:", err)
+		return
+	}
+
+	print(nodeDetails)
 }
 
 func print(data interface{}) {
