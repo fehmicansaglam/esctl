@@ -366,6 +366,45 @@ esctl describe index INDEX --settings
 esctl describe index INDEX | fx
 ```
 
+### Count
+
+The `esctl count` command allows you to retrieve the count of documents in one or more Elasticsearch indices. You can specify filters to apply using the `--term` and `--exists` flags.
+
+#### Count All Documents
+
+To count all documents across all indices, use the following command:
+
+```shell
+esctl count
+```
+
+#### Count Documents in Specific Index
+
+To count all documents in a specific index, use the following command:
+
+```shell
+esctl count INDEX
+```
+
+#### Count Documents with Term Filters
+
+You can apply term filters to count documents that match specific field-value combinations. Use the `--term` flag followed by the field-value pairs separated by a colon (`:`). For example, to count documents with the field `price` equal to `12` and `category` equal to `electronics`, use the following command:
+
+```shell
+esctl count --term "price:12" --term "category:electronics"
+```
+
+#### Count Documents with Existence Filters
+
+To count documents based on the existence of a field, use the `--exists` flag followed by the field name. For example, to count documents where the field `category` exists, use the following command:
+
+```shell
+esctl count --exists "category"
+```
+
+> **Note**<br>
+> You can combine both term and existence filters in a single command to further refine the count.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
