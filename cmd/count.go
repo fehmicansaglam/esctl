@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
@@ -11,8 +12,9 @@ import (
 )
 
 var (
-	flagTerm   []string
-	flagExists []string
+	flagTerm    []string
+	flagExists  []string
+	flagGroupBy string
 )
 
 var countCmd = &cobra.Command{
@@ -29,41 +31,37 @@ var countCmd = &cobra.Command{
 }
 
 func handleCount(index string) {
-	var counts map[string]int
+	var counts map[string]es.GroupCount
 	var err error
-	if index != "" {
-		count, err := es.CountDocuments(index, flagTerm, flagExists)
-		if err != nil {
-			fmt.Printf("Failed to count documents in index %s: %v\n", index, err)
-			os.Exit(1)
-		}
-		counts = map[string]int{index: count}
-	} else {
-		counts, err = es.GetDocumentCounts(flagTerm, flagExists)
-		if err != nil {
-			fmt.Printf("Failed to get document counts: %v\n", err)
-			os.Exit(1)
-		}
+
+	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagGroupBy)
+	if err != nil {
+		fmt.Printf("Failed to get document counts: %v\n", err)
+		os.Exit(1)
 	}
 
 	columnDefs := []output.ColumnDef{
 		{Header: "INDEX", Type: output.Text},
+		{Header: strings.ToUpper(flagGroupBy), Type: output.Text},
 		{Header: "COUNT", Type: output.Number},
 	}
 
 	data := [][]string{}
 
-	for index, count := range counts {
-		rowData := map[string]string{
-			"INDEX": index,
-			"COUNT": strconv.Itoa(count),
-		}
+	for index, groupCount := range counts {
+		for group, count := range groupCount {
+			rowData := map[string]string{
+				"INDEX":                      index,
+				strings.ToUpper(flagGroupBy): group,
+				"COUNT":                      strconv.Itoa(count),
+			}
 
-		row := make([]string, len(columnDefs))
-		for i, colDef := range columnDefs {
-			row[i] = rowData[colDef.Header]
+			row := make([]string, len(columnDefs))
+			for i, colDef := range columnDefs {
+				row[i] = rowData[colDef.Header]
+			}
+			data = append(data, row)
 		}
-		data = append(data, row)
 	}
 
 	if len(flagSortBy) > 0 {
@@ -76,5 +74,7 @@ func handleCount(index string) {
 func init() {
 	countCmd.Flags().StringSliceVar(&flagTerm, "term", []string{}, "Term filters to apply")
 	countCmd.Flags().StringSliceVar(&flagExists, "exists", []string{}, "Exists filters to apply")
+	countCmd.Flags().StringVar(&flagGroupBy, "group-by", "", "Field to group the documents by")
+
 	rootCmd.AddCommand(countCmd)
 }

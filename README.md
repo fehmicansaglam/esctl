@@ -23,6 +23,8 @@ Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
 - [Usage](#usage)
   - [Get](#get)
   - [Describe](#describe)
+  - [Count](#count)
+  - [Count with Grouping](#count-with-grouping)
 - [License](#license)
 
 ## Installation
@@ -404,6 +406,33 @@ esctl count --exists "category"
 
 > **Note**<br>
 > You can combine both term and existence filters in a single command to further refine the count.
+
+### Count with Grouping
+
+The `esctl count` command also supports grouping the documents by a specific field and displaying the respective counts. You can use the `--group-by` flag to specify the field to group by.
+
+#### Group Documents by Field
+
+To count and group documents by a specific field, use the `--group-by` flag followed by the field name. For example, to count documents in the index `articles` and group them by the `category` field, use the following command:
+
+```shell
+esctl count articles --group-by category
+```
+
+This command will retrieve the count of documents in the `articles` index and group them based on the values of the `category` field.
+
+#### Grouping with Filters
+
+You can combine the grouping functionality with term and existence filters to further refine the count and group the documents accordingly. For example, to count and group documents in the index `articles` with the field `price` equal to `12`, use the following command:
+
+```shell
+esctl count articles --term "price:12" --group-by category
+```
+
+This command will count the documents in the `articles` index that satisfy the term filter (`price:12`) and group them by the values of the `category` field.
+
+> **Note**<br>
+> If an index name is not provided to the count command with `--group-by`, all the indices will be grouped individually.
 
 ## License
 
