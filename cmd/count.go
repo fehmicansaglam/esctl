@@ -34,7 +34,7 @@ func handleCount(index string) {
 	var counts map[string]es.GroupCount
 	var err error
 
-	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagGroupBy)
+	counts, err = es.CountDocuments(index, flagTerm, flagExists, flagGroupBy)
 	if err != nil {
 		fmt.Printf("Failed to get document counts: %v\n", err)
 		os.Exit(1)
