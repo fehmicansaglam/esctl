@@ -11,12 +11,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagMappings bool
-	flagSettings bool
-	flagOutput   string
-)
-
 var describeCmd = &cobra.Command{
 	Short:     "Print detailed information about an entity",
 	Args:      cobra.RangeArgs(1, 2),

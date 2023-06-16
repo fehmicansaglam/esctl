@@ -10,21 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagIndex        string
-	flagNode         string
-	flagShard        int
-	flagPrimary      bool
-	flagReplica      bool
-	flagStarted      bool
-	flagRelocating   bool
-	flagInitializing bool
-	flagUnassigned   bool
-	flagActions      []string
-	flagSortBy       []string
-	flagColumns      []string
-)
-
 var getCmd = &cobra.Command{
 	Use:   "get ENTITY",
 	Short: "Get Elasticsearch entities",

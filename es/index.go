@@ -247,25 +247,17 @@ func getCountForIndex(index string, termFilters []string, existsFilters []string
 func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string) (map[string]GroupCount, error) {
 	indexCounts := make(map[string]GroupCount)
 
-	if index == "" {
-		indices, err := GetIndices("")
-		if err != nil {
-			return nil, err
-		}
+	indices, err := GetIndices(index)
+	if err != nil {
+		return nil, err
+	}
 
-		for _, index := range indices {
-			groupCount, err := getCountForIndex(index.Index, termFilters, existsFilters, groupBy)
-			if err != nil {
-				return nil, err
-			}
-			indexCounts[index.Index] = groupCount
-		}
-	} else {
-		groupCount, err := getCountForIndex(index, termFilters, existsFilters, groupBy)
+	for _, index := range indices {
+		groupCount, err := getCountForIndex(index.Index, termFilters, existsFilters, groupBy)
 		if err != nil {
 			return nil, err
 		}
-		indexCounts[index] = groupCount
+		indexCounts[index.Index] = groupCount
 	}
 
 	return indexCounts, nil

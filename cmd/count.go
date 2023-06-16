@@ -11,30 +11,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	flagTerm    []string
-	flagExists  []string
-	flagGroupBy string
-)
-
 var countCmd = &cobra.Command{
-	Use:   "count [INDEX]",
-	Short: "Count documents in an index or in all indices",
-	Args:  cobra.MaximumNArgs(1),
+	Use:   "count [--index index] [--group-by field]",
+	Short: "Count documents in an index or in all indices matching a pattern",
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		var index string
-		if len(args) == 1 {
-			index = args[0]
-		}
-		handleCount(index)
+		handleCount()
 	},
 }
 
-func handleCount(index string) {
+func handleCount() {
 	var counts map[string]es.GroupCount
 	var err error
 
-	counts, err = es.CountDocuments(index, flagTerm, flagExists, flagGroupBy)
+	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagGroupBy)
 	if err != nil {
 		fmt.Printf("Failed to get document counts: %v\n", err)
 		os.Exit(1)
@@ -72,9 +62,11 @@ func handleCount(index string) {
 }
 
 func init() {
-	countCmd.Flags().StringSliceVar(&flagTerm, "term", []string{}, "Term filters to apply")
-	countCmd.Flags().StringSliceVar(&flagExists, "exists", []string{}, "Exists filters to apply")
-	countCmd.Flags().StringVar(&flagGroupBy, "group-by", "", "Field to group the documents by")
+	countCmd.Flags().StringVarP(&flagIndex, "index", "i", "", "Filter by specific indices or patterns")
+	countCmd.Flags().StringSliceVarP(&flagTerm, "term", "t", []string{}, "Term filters to apply")
+	countCmd.Flags().StringSliceVarP(&flagExists, "exists", "e", []string{}, "Exists filters to apply")
+	countCmd.Flags().StringVarP(&flagGroupBy, "group-by", "g", "", "Field to group the documents by")
+	countCmd.Flags().StringSliceVarP(&flagSortBy, "sort-by", "s", []string{}, "Columns to sort by (comma-separated)")
 
 	rootCmd.AddCommand(countCmd)
 }
