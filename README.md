@@ -370,6 +370,8 @@ esctl describe index INDEX | fx
 
 ### Count
 
+![esctl usage](./assets/count.gif)
+
 The `esctl count` command allows you to retrieve the count of documents in one or more Elasticsearch indices. You can specify filters to apply using the `--term` and `--exists` flags.
 
 #### Count All Documents
