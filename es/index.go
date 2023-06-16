@@ -121,6 +121,26 @@ func parseExistsFilter(filter string) map[string]interface{} {
 	}
 }
 
+func buildFilterQueries(termFilters, existsFilters []string) []map[string]interface{} {
+	filterQueries := make([]map[string]interface{}, 0, len(termFilters)+len(existsFilters))
+
+	for _, filter := range termFilters {
+		filterQuery := parseTermFilter(filter)
+		if filterQuery != nil {
+			filterQueries = append(filterQueries, filterQuery)
+		}
+	}
+
+	for _, filter := range existsFilters {
+		filterQuery := parseExistsFilter(filter)
+		if filterQuery != nil {
+			filterQueries = append(filterQueries, filterQuery)
+		}
+	}
+
+	return filterQueries
+}
+
 func countDocumentsOfIndex(index string, termFilters []string, existsFilters []string) (int, error) {
 	endpoint := index + "/_count"
 	query := map[string]interface{}{
@@ -128,25 +148,9 @@ func countDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	}
 
 	if len(termFilters) > 0 || len(existsFilters) > 0 {
-		filterQueries := make([]map[string]interface{}, 0, len(termFilters)+len(existsFilters))
-
-		for _, filter := range termFilters {
-			filterQuery := parseTermFilter(filter)
-			if filterQuery != nil {
-				filterQueries = append(filterQueries, filterQuery)
-			}
-		}
-
-		for _, filter := range existsFilters {
-			filterQuery := parseExistsFilter(filter)
-			if filterQuery != nil {
-				filterQueries = append(filterQueries, filterQuery)
-			}
-		}
-
 		query = map[string]interface{}{
 			"bool": map[string]interface{}{
-				"must": filterQueries,
+				"must": buildFilterQueries(termFilters, existsFilters),
 			},
 		}
 	}
@@ -170,25 +174,9 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	}
 
 	if len(termFilters) > 0 || len(existsFilters) > 0 {
-		filterQueries := make([]map[string]interface{}, 0, len(termFilters)+len(existsFilters))
-
-		for _, filter := range termFilters {
-			filterQuery := parseTermFilter(filter)
-			if filterQuery != nil {
-				filterQueries = append(filterQueries, filterQuery)
-			}
-		}
-
-		for _, filter := range existsFilters {
-			filterQuery := parseExistsFilter(filter)
-			if filterQuery != nil {
-				filterQueries = append(filterQueries, filterQuery)
-			}
-		}
-
 		query = map[string]interface{}{
 			"bool": map[string]interface{}{
-				"must": filterQueries,
+				"must": buildFilterQueries(termFilters, existsFilters),
 			},
 		}
 	}
