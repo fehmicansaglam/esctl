@@ -387,7 +387,7 @@ esctl count
 To count all documents in a specific index, use the following command:
 
 ```shell
-esctl count INDEX
+esctl count --index index
 ```
 
 #### Count Documents with Term Filters
@@ -418,7 +418,7 @@ The `esctl count` command also supports grouping the documents by a specific fie
 To count and group documents by a specific field, use the `--group-by` flag followed by the field name. For example, to count documents in the index `articles` and group them by the `category` field, use the following command:
 
 ```shell
-esctl count articles --group-by category
+esctl count --index articles --group-by category
 ```
 
 This command will retrieve the count of documents in the `articles` index and group them based on the values of the `category` field.
@@ -428,7 +428,7 @@ This command will retrieve the count of documents in the `articles` index and gr
 You can combine the grouping functionality with term and existence filters to further refine the count and group the documents accordingly. For example, to count and group documents in the index `articles` with the field `price` equal to `12`, use the following command:
 
 ```shell
-esctl count articles --term "price:12" --group-by category
+esctl count --index articles --term "price:12" --group-by category
 ```
 
 This command will count the documents in the `articles` index that satisfy the term filter (`price:12`) and group them by the values of the `category` field.
