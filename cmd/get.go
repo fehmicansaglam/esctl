@@ -8,6 +8,7 @@ import (
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/output"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var getCmd = &cobra.Command{
@@ -46,30 +47,59 @@ esctl get tasks --actions 'index*' --actions '*search*'
 
 #Retrieve all tasks.
 esctl get tasks`),
-	Args:       cobra.ExactArgs(1),
-	ValidArgs:  []string{"node", "index", "shard", "alias", "task"},
-	ArgAliases: []string{"nodes", "indices", "shards", "aliases", "tasks"},
+	Args:      cobra.ExactArgs(1),
+	ValidArgs: []string{"nodes", "indices", "shards", "aliases", "tasks"},
 	Run: func(cmd *cobra.Command, args []string) {
 		entity := args[0]
+
+		validateFlags(entity, cmd)
 
 		config := parseConfigFile()
 
 		switch entity {
-		case constants.EntityNode, constants.EntityNodes:
+		case constants.EntityNodes:
 			handleNodeLogic(config)
-		case constants.EntityIndex, constants.EntityIndices:
+		case constants.EntityIndices:
 			handleIndexLogic(config)
-		case constants.EntityShard, constants.EntityShards:
+		case constants.EntityShards:
 			handleShardLogic(config)
-		case constants.EntityAlias, constants.EntityAliases:
+		case constants.EntityAliases:
 			handleAliasLogic(config)
-		case constants.EntityTask, constants.EntityTasks:
+		case constants.EntityTasks:
 			handleTaskLogic(config)
 		default:
 			fmt.Printf("Unknown entity: %s\n", entity)
 			os.Exit(1)
 		}
 	},
+}
+
+var validFlags = map[string][]string{
+	constants.EntityNodes:   {"node", "sort-by", "columns"},
+	constants.EntityIndices: {"index", "sort-by", "columns"},
+	constants.EntityShards:  {"index", "node", "shard", "primary", "replica", "started", "relocating", "initializing", "unassigned", "sort-by", "columns"},
+	constants.EntityAliases: {"index", "sort-by", "columns"},
+	constants.EntityTasks:   {"actions", "sort-by", "columns"},
+}
+
+func validateFlags(entity string, cmd *cobra.Command) {
+	flags, ok := validFlags[entity]
+	if !ok {
+		fmt.Printf("Unknown entity: %s\n", entity)
+		os.Exit(1)
+	}
+
+	flagMap := make(map[string]bool, len(flags))
+	for _, flag := range flags {
+		flagMap[flag] = true
+	}
+
+	cmd.Flags().Visit(func(flag *pflag.Flag) {
+		if _, ok := flagMap[flag.Name]; !ok {
+			fmt.Printf("Invalid flag for entity '%s': %s\n", entity, flag.Name)
+			os.Exit(1)
+		}
+	})
 }
 
 func buildColumnDefs(columns []string, defaultColumns []output.ColumnDef) ([]output.ColumnDef, error) {
@@ -109,7 +139,7 @@ func getColumnDefs(config Config, entity string, defaultColumns []output.ColumnD
 
 func init() {
 	rootCmd.AddCommand(getCmd)
-	getCmd.Flags().StringVar(&flagIndex, "index", "", "Name of the index")
+	getCmd.Flags().StringVarP(&flagIndex, "index", "i", "", "Name of the index")
 	getCmd.Flags().StringVar(&flagNode, "node", "", "Filter shards by node")
 	getCmd.Flags().IntVar(&flagShard, "shard", -1, "Filter shards by shard number")
 	getCmd.Flags().BoolVar(&flagPrimary, "primary", false, "Filter primary shards")

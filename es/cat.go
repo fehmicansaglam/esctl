@@ -21,12 +21,21 @@ type Node struct {
 	Uptime      string `json:"uptime"`
 }
 
-func GetNodes() ([]Node, error) {
+func GetNodes(nodeName string) ([]Node, error) {
 	endpoint := "_cat/nodes?format=json&h=name,ip,node.role,master,heap.max,heap.current,heap.percent,cpu,load_1m,disk.total,disk.used,disk.avail,ram.current,ram.max,ram.percent,uptime"
 
 	var nodes []Node
 	if err := getJSONResponse(endpoint, &nodes); err != nil {
 		return nil, err
+	}
+
+	if nodeName != "" {
+		for _, node := range nodes {
+			if node.Name == nodeName {
+				return []Node{node}, nil
+			}
+		}
+		return nil, fmt.Errorf("node not found: %s", nodeName)
 	}
 
 	return nodes, nil
@@ -120,7 +129,7 @@ type ShardSummary struct {
 }
 
 func GetNodeDetails(nodeName string) (*NodeDetails, error) {
-	nodes, err := GetNodes()
+	nodes, err := GetNodes("")
 	if err != nil {
 		return nil, err
 	}

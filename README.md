@@ -238,16 +238,16 @@ esctl get ENTITY [flags]
 
 #### Available Entities
 
-- `node` or `nodes`: List all nodes in the Elasticsearch cluster.
-- `index` or `indices`: List all indices in the Elasticsearch cluster.
-- `shard` or `shards`: List detailed information about shards, including their sizes and placement.
-- `alias` or `aliases`: List all aliases in the Elasticsearch cluster.
-- `task` or `tasks`: List all tasks in the Elasticsearch cluster.
+- `nodes`: List all nodes in the Elasticsearch cluster.
+- `indices`: List all indices in the Elasticsearch cluster.
+- `shards`: List detailed information about shards, including their sizes and placement.
+- `aliases`: List all aliases in the Elasticsearch cluster.
+- `tasks`: List all tasks in the Elasticsearch cluster.
 
 #### Flags
 
-- `--index`: Specifies the name of the index (applies to `index`, `shard`, and `alias` entities).
-- `--node`: Filters shards by node name.
+- `--index`: Specifies the name of the index (applies to `indices`, `shards`, and `aliases` entities).
+- `--node`: Specified the name of the node (applies to `nodes` and `shards` entities).
 - `--shard`: Filters shards by shard number.
 - `--primary`: Filters primary shards.
 - `--replica`: Filters replica shards.
@@ -280,12 +280,12 @@ esctl get indices
 To retrieve shards from Elasticsearch, you can use the following command:
 
 ```shell
-esctl get shards [--index INDEX] [--node NODE] [--shard SHARD] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
+esctl get shards [--index index] [--node node] [--shard shard] [--primary] [--replica] [--started] [--relocating] [--initializing] [--unassigned]
 ```
 
-* `--index INDEX`: Specifies the name of the index to retrieve shards from.
-* `--node NODE`: Filters shards by node name.
-* `--shard SHARD`: Filters shards by shard number.
+* `--index`: Specifies the name of the index to retrieve shards from.
+* `--node`: Filters shards by node name.
+* `--shard`: Filters shards by shard number.
 * `--primary`: Filters primary shards.
 * `--replica`: Filters replica shards.
 * `--started`: Filters shards in the STARTED state.

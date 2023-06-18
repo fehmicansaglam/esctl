@@ -28,7 +28,7 @@ var nodeColumns = []output.ColumnDef{
 }
 
 func handleNodeLogic(config Config) {
-	nodes, err := es.GetNodes()
+	nodes, err := es.GetNodes(flagNode)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to retrieve nodes: %v\n", err)
 		os.Exit(1)
