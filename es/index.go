@@ -167,7 +167,7 @@ func countDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return response.Count, nil
 }
 
-func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, groupBy string) (GroupCount, error) {
+func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, groupBy string, size int) (GroupCount, error) {
 	endpoint := index + "/_search"
 	query := map[string]interface{}{
 		"match_all": map[string]interface{}{},
@@ -181,12 +181,17 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 		}
 	}
 
+	if size <= 0 {
+		size = 50
+	}
+
 	body := map[string]interface{}{
 		"query": query,
 		"aggs": map[string]interface{}{
 			"group_by": map[string]interface{}{
 				"terms": map[string]interface{}{
 					"field": groupBy,
+					"size":  size,
 				},
 			},
 		},
@@ -216,23 +221,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return groupCount, nil
 }
 
-func getCountForIndex(index string, termFilters []string, existsFilters []string, groupBy string) (GroupCount, error) {
-	if groupBy == "" {
-		count, err := countDocumentsOfIndex(index, termFilters, existsFilters)
-		if err != nil {
-			return nil, err
-		}
-		return map[string]int{"": count}, nil
-	}
-
-	groupCount, err := groupDocumentsOfIndex(index, termFilters, existsFilters, groupBy)
-	if err != nil {
-		return nil, err
-	}
-	return groupCount, nil
-}
-
-func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string) (map[string]GroupCount, error) {
+func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string, size int) (map[string]GroupCount, error) {
 	indexCounts := make(map[string]GroupCount)
 
 	indices, err := GetIndices(index)
@@ -241,10 +230,20 @@ func CountDocuments(index string, termFilters []string, existsFilters []string, 
 	}
 
 	for _, index := range indices {
-		groupCount, err := getCountForIndex(index.Index, termFilters, existsFilters, groupBy)
-		if err != nil {
-			return nil, err
+		var groupCount GroupCount
+		if groupBy == "" {
+			count, err := countDocumentsOfIndex(index.Index, termFilters, existsFilters)
+			if err != nil {
+				return nil, err
+			}
+			groupCount = map[string]int{"": count}
+		} else {
+			groupCount, err = groupDocumentsOfIndex(index.Index, termFilters, existsFilters, groupBy, size)
+			if err != nil {
+				return nil, err
+			}
 		}
+
 		indexCounts[index.Index] = groupCount
 	}
 

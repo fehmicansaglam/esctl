@@ -15,6 +15,7 @@ var (
 	flagReplica      bool
 	flagSettings     bool
 	flagShard        int
+	flagSize         int
 	flagSortBy       []string
 	flagStarted      bool
 	flagTerm         []string
