@@ -94,6 +94,11 @@ func validateFlags(entity string, cmd *cobra.Command) {
 		flagMap[flag] = true
 	}
 
+	// Add inherited flags to flagMap
+	cmd.InheritedFlags().VisitAll(func(flag *pflag.Flag) {
+		flagMap[flag.Name] = true
+	})
+
 	cmd.Flags().Visit(func(flag *pflag.Flag) {
 		if _, ok := flagMap[flag.Name]; !ok {
 			fmt.Printf("Invalid flag for entity '%s': %s\n", entity, flag.Name)
@@ -149,6 +154,6 @@ func init() {
 	getCmd.Flags().BoolVar(&flagInitializing, "initializing", false, "Filter shards in INITIALIZING state")
 	getCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
 	getCmd.Flags().StringSliceVar(&flagActions, "actions", []string{}, "Filter tasks by actions")
-	getCmd.Flags().StringSliceVar(&flagSortBy, "sort-by", []string{}, "Columns to sort by (comma-separated)")
-	getCmd.Flags().StringSliceVar(&flagColumns, "columns", []string{}, "Columns to display (comma-separated) or 'all'")
+	getCmd.Flags().StringSliceVarP(&flagSortBy, "sort-by", "s", []string{}, "Columns to sort by (comma-separated)")
+	getCmd.Flags().StringSliceVarP(&flagColumns, "columns", "c", []string{}, "Columns to display (comma-separated) or 'all'")
 }
