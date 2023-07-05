@@ -1,6 +1,6 @@
 # esctl
 
-[![Latest Stable Version](https://img.shields.io/badge/version-v0.3.0-blue.svg)](https://github.com/fehmicansaglam/esctl/releases/tag/v0.3.0)
+[![Latest Stable Version](https://img.shields.io/badge/version-v0.4.0-blue.svg)](https://github.com/fehmicansaglam/esctl/releases/tag/v0.4.0)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/fehmicansaglam/esctl/blob/main/LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fehmicansaglam/esctl)](https://goreportcard.com/report/github.com/fehmicansaglam/esctl)
 
