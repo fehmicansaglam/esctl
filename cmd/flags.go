@@ -19,5 +19,6 @@ var (
 	flagSortBy       []string
 	flagStarted      bool
 	flagTerm         []string
+	flagTimeout      string
 	flagUnassigned   bool
 )

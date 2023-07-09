@@ -167,7 +167,7 @@ func countDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return response.Count, nil
 }
 
-func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, groupBy string, size int) (GroupCount, error) {
+func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, groupBy string, size int, timeout string) (GroupCount, error) {
 	endpoint := index + "/_search"
 	query := map[string]interface{}{
 		"match_all": map[string]interface{}{},
@@ -185,6 +185,10 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 		size = 50
 	}
 
+	if timeout == "" {
+		timeout = "1s"
+	}
+
 	body := map[string]interface{}{
 		"query": query,
 		"aggs": map[string]interface{}{
@@ -195,6 +199,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 				},
 			},
 		},
+		"timeout": timeout,
 	}
 
 	var response CountResponse
@@ -221,7 +226,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return groupCount, nil
 }
 
-func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string, size int) (map[string]GroupCount, error) {
+func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string, size int, timeout string) (map[string]GroupCount, error) {
 	indexCounts := make(map[string]GroupCount)
 
 	indices, err := GetIndices(index)
@@ -238,7 +243,7 @@ func CountDocuments(index string, termFilters []string, existsFilters []string, 
 			}
 			groupCount = map[string]int{"": count}
 		} else {
-			groupCount, err = groupDocumentsOfIndex(index.Index, termFilters, existsFilters, groupBy, size)
+			groupCount, err = groupDocumentsOfIndex(index.Index, termFilters, existsFilters, groupBy, size, timeout)
 			if err != nil {
 				return nil, err
 			}
