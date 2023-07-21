@@ -138,7 +138,7 @@ esctl config get-contexts
 
 Example output:
 
-```
+```yaml
 - name: local(*)
   protocol: https
   host: localhost
@@ -168,6 +168,21 @@ Example output:
 ```
 local
 ```
+
+### Displaying Current Context with Starship Prompt
+
+If you're using [Starship](https://starship.rs) for your prompt, you can display the current `esctl` context directly in your shell prompt. This can be done by adding a custom module to your Starship configuration. Here's an example:
+
+```toml
+[custom.esctl]
+command = "esctl config current-context 2>/dev/null || echo 'none'"
+description = "Displays the current esctl context"
+when = "command -v esctl"
+symbol = "🄴 "
+```
+
+This configuration adds a new custom module that executes `esctl config current-context` and displays the current context in your prompt. The module will only appear if `esctl` is installed (`when = "command -v esctl"`). The `symbol` option is used to provide a visual indicator for the esctl context information. The `🄴` symbol is used to represent Elasticsearch.
+
 
 ### Elasticsearch Host Configuration
 
