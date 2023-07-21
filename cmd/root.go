@@ -36,22 +36,22 @@ func init() {
 func initialize() {
 	if shared.ElasticsearchHost == "" {
 		config := parseConfigFile()
-		readClusterFromConfig(config)
+		readContextFromConfig(config)
 	}
 }
 
-func readClusterFromConfig(config Config) {
-	if len(config.Clusters) == 0 {
-		fmt.Println("Error: No clusters defined in the configuration.")
+func readContextFromConfig(config Config) {
+	if len(config.Contexts) == 0 {
+		fmt.Println("Error: No contexts defined in the configuration.")
 		os.Exit(1)
 	}
-	if config.CurrentCluster == "" {
-		config.CurrentCluster = config.Clusters[0].Name
+	if config.CurrentContext == "" {
+		config.CurrentContext = config.Contexts[0].Name
 	}
 
 	clusterFound := false
-	for _, cluster := range config.Clusters {
-		if cluster.Name == config.CurrentCluster {
+	for _, cluster := range config.Contexts {
+		if cluster.Name == config.CurrentContext {
 			shared.ElasticsearchProtocol = cluster.Protocol
 			if shared.ElasticsearchProtocol == "" {
 				shared.ElasticsearchProtocol = constants.DefaultElasticsearchProtocol
@@ -73,7 +73,7 @@ func readClusterFromConfig(config Config) {
 	}
 
 	if !clusterFound {
-		fmt.Printf("Error: No cluster found with the name '%s' in the configuration.\n", config.CurrentCluster)
+		fmt.Printf("Error: No cluster found with the name '%s' in the configuration.\n", config.CurrentContext)
 		os.Exit(1)
 	}
 }

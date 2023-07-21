@@ -81,15 +81,15 @@ articles_alias  articles
 
 ## Configuration
 
-`esctl` supports reading cluster configurations from a YAML file, enabling you to easily switch between different Elasticsearch clusters.
+`esctl` supports reading context configurations from a YAML file, enabling you to easily switch between different Elasticsearch contexts.
 
-Create a configuration file named `esctl.yml` in your `$HOME/.config` directory. This file will contain the details of the Elasticsearch clusters you want to connect to.
+Create a configuration file named `esctl.yml` in your `$HOME/.config` directory. This file will contain the details of the Elasticsearch contexts you want to connect to.
 
 Here is an example configuration:
 
 ```yaml
-current-cluster: "local"
-clusters:
+current-context: "local"
+contexts:
   - name: "local"
     protocol: "http"
     host: "localhost"
@@ -104,48 +104,48 @@ clusters:
 
 In the configuration file:
 
-- `current-cluster` is the name of the cluster that `esctl` will connect to by default.
-- `clusters` is an array of your Elasticsearch clusters.
-  - `name` is the name you assign to the cluster.
-  - `protocol`, `host`, `port`, `username`, and `password` are the connection details for each cluster.
+- `current-context` is the name of the context that `esctl` will connect to by default.
+- `contexts` is an array of your Elasticsearch contexts.
+  - `name` is the name you assign to the context.
+  - `protocol`, `host`, `port`, `username`, and `password` are the connection details for each context.
   - `protocol` and `port` are optional and default to `http` and `9200` respectively.
 
 > **Note**<br>
-> `esctl` will use the `current-cluster` defined in the configuration file unless another cluster is specified via command-line flag or environment variable.
+> `esctl` will use the `current-context` defined in the configuration file unless another cluster is specified via command-line flag or environment variable.
 
-### set-cluster
+### esctl config use-context
 
-Sets the current cluster in the configuration file.
+Sets the current context in the configuration file.
 
 ```bash
-esctl set-cluster CLUSTER
+esctl config use-context CONTEXT
 ```
 
-- `CLUSTER`: The name of the cluster to set as the current cluster.
+- `CONTEXT`: The name of the context to set as the current context.
 
-This command updates the `current-cluster` in the configuration file (`esctl.yml`) with the specified cluster name. The updated configuration will be used for subsequent operations performed by `esctl`.
+This command updates the `current-context` in the configuration file (`esctl.yml`) with the specified context name. The updated configuration will be used for subsequent operations performed by `esctl`.
 
 > **Note**<br>
-> The specified cluster name must already be defined in the configuration file.
+> The specified context name must already be defined in the configuration file.
 
-### list-clusters
+### esctl config get-contexts
 
-Displays the clusters defined in the `esctl.yml` file.
+Displays the contexts defined in the `esctl.yml` file.
 
 ```bash
-esctl list-clusters
+esctl config get-contexts
 ```
 
 Example output:
 
 ```
-- name: cluster1(*)
+- name: local(*)
   protocol: https
   host: localhost
   port: 9200
   username: myuser
   password: ********
-- name: cluster2
+- name: production
   protocol: http
   host: example.com
   port: 9200
@@ -153,7 +153,21 @@ Example output:
   password: ********
 ```
 
-In the example output, the current cluster is marked with an asterisk (*).
+In the example output, the current context is marked with an asterisk (*).
+
+### esctl config current-context
+
+Displays the current context that `esctl` is configured to use.
+
+```bash
+esctl config current-context
+```
+
+Example output:
+
+```
+local
+```
 
 ### Elasticsearch Host Configuration
 
@@ -196,14 +210,14 @@ You can customize the columns displayed when running `esctl get ENTITY` using th
 To customize the columns, add an optional `entities` field to the `esctl.yml` file. Under `entities`, specify the desired entities (`node`, `index`, `shard`, `alias`, `task`) and their corresponding columns. Here is an example:
 
 ```yaml
-clusters:
+contexts:
   - host: localhost
     name: cluster1
     port: 9200
     protocol: http
   - host: 127.0.0.1
     name: cluster2
-current-cluster: cluster2
+current-context: cluster2
 entities:
   node:
     columns:

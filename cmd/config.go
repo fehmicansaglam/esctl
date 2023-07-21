@@ -9,43 +9,56 @@ import (
 	"github.com/spf13/viper"
 )
 
-var setClusterCmd = &cobra.Command{
-	Use:   "set-cluster",
-	Short: "Set the current cluster",
-	Long:  `Set the current cluster to connect to. This command updates the 'current-cluster' field in the configuration file.`,
-	Args:  cobra.ExactArgs(1),
-	Run:   runSetCluster,
+var configCmd = &cobra.Command{
+	Use:   "config",
+	Short: "Modify and view the configuration",
 }
 
-var listClustersCmd = &cobra.Command{
-	Use:   "list-clusters",
-	Short: "List the clusters defined in the esctl.yml file",
-	Run:   runListClusters,
+var useContextCmd = &cobra.Command{
+	Use:   "use-context",
+	Short: "Set the current context",
+	Long:  `Set the current context to connect to. This command updates the 'current-context' field in the configuration file.`,
+	Args:  cobra.ExactArgs(1),
+	Run:   runUseContext,
+}
+
+var getContextsCmd = &cobra.Command{
+	Use:   "get-contexts",
+	Short: "List the contexts defined in the esctl.yml file",
+	Run:   runGetContexts,
+}
+
+var currentContextCmd = &cobra.Command{
+	Use:   "current-context",
+	Short: "Display the current context",
+	Run:   runCurrentContext,
 }
 
 func init() {
-	rootCmd.AddCommand(setClusterCmd)
-	rootCmd.AddCommand(listClustersCmd)
+	configCmd.AddCommand(useContextCmd)
+	configCmd.AddCommand(getContextsCmd)
+	configCmd.AddCommand(currentContextCmd)
+	rootCmd.AddCommand(configCmd)
 }
 
-func runSetCluster(cmd *cobra.Command, args []string) {
-	clusterName := args[0]
+func runUseContext(cmd *cobra.Command, args []string) {
+	contextName := args[0]
 	config := parseConfigFile()
 
-	clusterExists := false
-	for _, cluster := range config.Clusters {
-		if cluster.Name == clusterName {
-			clusterExists = true
+	contextExists := false
+	for _, context := range config.Contexts {
+		if context.Name == contextName {
+			contextExists = true
 			break
 		}
 	}
 
-	if !clusterExists {
-		fmt.Printf("Error: No cluster found with the name '%s' in the configuration.\n", clusterName)
+	if !contextExists {
+		fmt.Printf("Error: No context found with the name '%s' in the configuration.\n", contextName)
 		os.Exit(1)
 	}
 
-	viper.Set("current-cluster", clusterName)
+	viper.Set("current-context", contextName)
 
 	err := viper.WriteConfig()
 	if err != nil {
@@ -54,31 +67,36 @@ func runSetCluster(cmd *cobra.Command, args []string) {
 	}
 }
 
-func runListClusters(cmd *cobra.Command, args []string) {
+func runGetContexts(cmd *cobra.Command, args []string) {
 	config := parseConfigFile()
-	for _, cluster := range config.Clusters {
-		clusterName := cluster.Name
-		if clusterName == config.CurrentCluster {
-			clusterName += "(*)"
+	for _, context := range config.Contexts {
+		contextName := context.Name
+		if contextName == config.CurrentContext {
+			contextName += "(*)"
 		}
-		fmt.Printf("- name: %s\n", clusterName)
-		fmt.Printf("  host: %s\n", cluster.Host)
-		if cluster.Protocol != "" {
-			fmt.Printf("  protocol: %s\n", cluster.Protocol)
+		fmt.Printf("- name: %s\n", contextName)
+		fmt.Printf("  host: %s\n", context.Host)
+		if context.Protocol != "" {
+			fmt.Printf("  protocol: %s\n", context.Protocol)
 		}
-		if cluster.Port != 0 {
-			fmt.Printf("  port: %d\n", cluster.Port)
+		if context.Port != 0 {
+			fmt.Printf("  port: %d\n", context.Port)
 		}
-		if cluster.Username != "" {
-			fmt.Printf("  username: %s\n", cluster.Username)
+		if context.Username != "" {
+			fmt.Printf("  username: %s\n", context.Username)
 		}
-		if cluster.Password != "" {
-			fmt.Printf("  password: %s\n", cluster.Password)
+		if context.Password != "" {
+			fmt.Printf("  password: %s\n", context.Password)
 		}
 	}
 }
 
-type Cluster struct {
+func runCurrentContext(cmd *cobra.Command, args []string) {
+	config := parseConfigFile()
+	fmt.Println(config.CurrentContext)
+}
+
+type Context struct {
 	Name     string `mapstructure:"name"`
 	Protocol string `mapstructure:"protocol"`
 	Host     string `mapstructure:"host"`
@@ -92,8 +110,8 @@ type Entity struct {
 }
 
 type Config struct {
-	CurrentCluster string            `mapstructure:"current-cluster"`
-	Clusters       []Cluster         `mapstructure:"clusters"`
+	CurrentContext string            `mapstructure:"current-context"`
+	Contexts       []Context         `mapstructure:"contexts"`
 	Entities       map[string]Entity `mapstructure:"entities"`
 }
 
