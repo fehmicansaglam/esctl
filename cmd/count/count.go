@@ -1,4 +1,4 @@
-package cmd
+package count
 
 import (
 	"fmt"
@@ -18,6 +18,10 @@ var countCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		handleCount()
 	},
+}
+
+func Cmd() *cobra.Command {
+	return countCmd
 }
 
 func handleCount() {
@@ -69,6 +73,4 @@ func init() {
 	countCmd.Flags().StringSliceVarP(&flagSortBy, "sort-by", "s", []string{}, "Columns to sort by (comma-separated)")
 	countCmd.Flags().IntVar(&flagSize, "size", 0, "Set max results per group")
 	countCmd.Flags().StringVar(&flagTimeout, "timeout", "", "Set timeout for group by query")
-
-	rootCmd.AddCommand(countCmd)
 }

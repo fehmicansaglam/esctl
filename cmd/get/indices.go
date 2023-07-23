@@ -1,12 +1,38 @@
-package cmd
+package get
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/fehmicansaglam/esctl/cmd/config"
+	"github.com/fehmicansaglam/esctl/cmd/utils"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
+	"github.com/spf13/cobra"
 )
+
+var getIndicesCmd = &cobra.Command{
+	Use:   "indices",
+	Short: "Get Elasticsearch indices",
+	Long: utils.Trim(`
+	Get Elasticsearch indices. You can filter the results using the index flag.
+	`),
+	Example: utils.TrimAndIndent(`
+	# Retrieve all indices.
+	esctl get indices
+
+	# Retrieve indices for a specific index.
+	esctl get indices --index my_index
+	`),
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := config.ParseConfigFile()
+		handleIndicesLogic(conf)
+	},
+}
+
+func init() {
+	getIndicesCmd.Flags().StringVarP(&flagIndex, "index", "i", "", "Name of the index")
+}
 
 var indexColumns = []output.ColumnDef{
 	{Header: "INDEX", Type: output.Text},
@@ -22,14 +48,14 @@ var indexColumns = []output.ColumnDef{
 	{Header: "PRI-STORE-SIZE", Type: output.DataSize},
 }
 
-func handleIndexLogic(config Config) {
+func handleIndicesLogic(conf config.Config) {
 	indices, err := es.GetIndices(flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve indices:", err)
 		os.Exit(1)
 	}
 
-	columnDefs, err := getColumnDefs(config, "index", indexColumns)
+	columnDefs, err := getColumnDefs(conf, "index", indexColumns)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
 		os.Exit(1)

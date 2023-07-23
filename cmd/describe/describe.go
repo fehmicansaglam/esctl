@@ -1,4 +1,4 @@
-package cmd
+package describe
 
 import (
 	"fmt"
@@ -39,6 +39,10 @@ var describeCmd = &cobra.Command{
 			os.Exit(1)
 		}
 	},
+}
+
+func Cmd() *cobra.Command {
+	return describeCmd
 }
 
 func handleDescribeCluster() {
@@ -93,6 +97,4 @@ func init() {
 	describeCmd.Flags().BoolVar(&flagMappings, "mappings", false, "If set, retrieve and print index mappings")
 	describeCmd.Flags().BoolVar(&flagSettings, "settings", false, "If set, retrieve and print index settings")
 	describeCmd.Flags().StringVarP(&flagOutput, "output", "o", "json", "Print output as json or yaml")
-
-	rootCmd.AddCommand(describeCmd)
 }

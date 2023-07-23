@@ -5,6 +5,10 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/fehmicansaglam/esctl/cmd/config"
+	"github.com/fehmicansaglam/esctl/cmd/count"
+	"github.com/fehmicansaglam/esctl/cmd/describe"
+	"github.com/fehmicansaglam/esctl/cmd/get"
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/shared"
 	"github.com/spf13/cobra"
@@ -26,32 +30,37 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initialize)
 
-	initProtocol()
-	initHost()
-	initPort()
-	initUsername()
-	initPassword()
+	initProtocolFlag()
+	initHostFlag()
+	initPortFlag()
+	initUsernameFlag()
+	initPasswordFlag()
+
+	rootCmd.AddCommand(config.Cmd())
+	rootCmd.AddCommand(count.Cmd())
+	rootCmd.AddCommand(describe.Cmd())
+	rootCmd.AddCommand(get.Cmd())
 }
 
 func initialize() {
 	if shared.ElasticsearchHost == "" {
-		config := parseConfigFile()
-		readContextFromConfig(config)
+		conf := config.ParseConfigFile()
+		readContextFromConfig(conf)
 	}
 }
 
-func readContextFromConfig(config Config) {
-	if len(config.Contexts) == 0 {
+func readContextFromConfig(conf config.Config) {
+	if len(conf.Contexts) == 0 {
 		fmt.Println("Error: No contexts defined in the configuration.")
 		os.Exit(1)
 	}
-	if config.CurrentContext == "" {
-		config.CurrentContext = config.Contexts[0].Name
+	if conf.CurrentContext == "" {
+		conf.CurrentContext = conf.Contexts[0].Name
 	}
 
 	clusterFound := false
-	for _, cluster := range config.Contexts {
-		if cluster.Name == config.CurrentContext {
+	for _, cluster := range conf.Contexts {
+		if cluster.Name == conf.CurrentContext {
 			shared.ElasticsearchProtocol = cluster.Protocol
 			if shared.ElasticsearchProtocol == "" {
 				shared.ElasticsearchProtocol = constants.DefaultElasticsearchProtocol
@@ -73,12 +82,12 @@ func readContextFromConfig(config Config) {
 	}
 
 	if !clusterFound {
-		fmt.Printf("Error: No cluster found with the name '%s' in the configuration.\n", config.CurrentContext)
+		fmt.Printf("Error: No cluster found with the name '%s' in the configuration.\n", conf.CurrentContext)
 		os.Exit(1)
 	}
 }
 
-func initProtocol() {
+func initProtocolFlag() {
 	defaultProtocol := constants.DefaultElasticsearchProtocol
 	defaultProtocolEnv := os.Getenv(constants.ElasticsearchProtocolEnvVar)
 	if defaultProtocolEnv != "" {
@@ -87,12 +96,12 @@ func initProtocol() {
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchProtocol, "protocol", defaultProtocol, "Elasticsearch protocol")
 }
 
-func initHost() {
+func initHostFlag() {
 	defaultHost := os.Getenv(constants.ElasticsearchHostEnvVar)
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchHost, "host", defaultHost, "Elasticsearch host")
 }
 
-func initPort() {
+func initPortFlag() {
 	defaultPort := constants.DefaultElasticsearchPort
 	defaultPortStr := os.Getenv(constants.ElasticsearchPortEnvVar)
 	if defaultPortStr != "" {
@@ -106,12 +115,12 @@ func initPort() {
 	rootCmd.PersistentFlags().IntVar(&shared.ElasticsearchPort, "port", defaultPort, "Elasticsearch port")
 }
 
-func initUsername() {
+func initUsernameFlag() {
 	defaultUsername := os.Getenv(constants.ElasticsearchUsernameEnvVar)
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchUsername, "username", defaultUsername, "Elasticsearch username")
 }
 
-func initPassword() {
+func initPasswordFlag() {
 	defaultPassword := os.Getenv(constants.ElasticsearchPasswordEnvVar)
 	rootCmd.PersistentFlags().StringVar(&shared.ElasticsearchPassword, "password", defaultPassword, "Elasticsearch password")
 }

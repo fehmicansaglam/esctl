@@ -1,14 +1,58 @@
-package cmd
+package get
 
 import (
 	"fmt"
 	"os"
 	"strconv"
 
+	"github.com/fehmicansaglam/esctl/cmd/config"
+	"github.com/fehmicansaglam/esctl/cmd/utils"
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
+	"github.com/spf13/cobra"
 )
+
+var getShardsCmd = &cobra.Command{
+	Use:   "shards",
+	Short: "Get shards in Elasticsearch cluster",
+	Long: utils.Trim(`
+The 'shards' command provides detailed information about each shard in the Elasticsearch cluster.
+
+This includes:
+  - Shard number
+  - State of the shard (e.g., whether it's started, relocating, initializing, or unassigned)
+  - Whether the shard is a primary or a replica
+  - Size of the shard
+  - Node on which the shard is located
+
+Filters can be applied to only show shards in certain states, with a specific number, located on a particular node, or designated as primary or replica.`),
+	Example: utils.TrimAndIndent(`
+# Retrieve detailed information about shards in the Elasticsearch cluster.
+esctl get shards
+
+# Retrieve shard information for an index.
+esctl get shards --index my_index
+
+# Retrieve shard information filtered by state.
+esctl get shards --started --relocating`),
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := config.ParseConfigFile()
+		handleShardLogic(conf)
+	},
+}
+
+func init() {
+	getShardsCmd.Flags().StringVarP(&flagIndex, "index", "i", "", "Name of the index")
+	getShardsCmd.Flags().StringVar(&flagNode, "node", "", "Filter shards by node")
+	getShardsCmd.Flags().IntVar(&flagShard, "shard", -1, "Filter shards by shard number")
+	getShardsCmd.Flags().BoolVar(&flagPrimary, "primary", false, "Filter primary shards")
+	getShardsCmd.Flags().BoolVar(&flagReplica, "replica", false, "Filter replica shards")
+	getShardsCmd.Flags().BoolVar(&flagStarted, "started", false, "Filter shards in STARTED state")
+	getShardsCmd.Flags().BoolVar(&flagRelocating, "relocating", false, "Filter shards in RELOCATING state")
+	getShardsCmd.Flags().BoolVar(&flagInitializing, "initializing", false, "Filter shards in INITIALIZING state")
+	getShardsCmd.Flags().BoolVar(&flagUnassigned, "unassigned", false, "Filter shards in UNASSIGNED state")
+}
 
 func includeShardByState(shard es.Shard) bool {
 	switch {
@@ -75,14 +119,14 @@ var shardColumns = []output.ColumnDef{
 	{Header: "SEGMENTS-COUNT", Type: output.Number},
 }
 
-func handleShardLogic(config Config) {
+func handleShardLogic(conf config.Config) {
 	shards, err := es.GetShards(flagIndex)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve shards:", err)
 		os.Exit(1)
 	}
 
-	columnDefs, err := getColumnDefs(config, "shard", shardColumns)
+	columnDefs, err := getColumnDefs(conf, "shard", shardColumns)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
 		os.Exit(1)

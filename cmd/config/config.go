@@ -1,4 +1,4 @@
-package cmd
+package config
 
 import (
 	"fmt"
@@ -38,12 +38,15 @@ func init() {
 	configCmd.AddCommand(useContextCmd)
 	configCmd.AddCommand(getContextsCmd)
 	configCmd.AddCommand(currentContextCmd)
-	rootCmd.AddCommand(configCmd)
+}
+
+func Cmd() *cobra.Command {
+	return configCmd
 }
 
 func runUseContext(cmd *cobra.Command, args []string) {
 	contextName := args[0]
-	config := parseConfigFile()
+	config := ParseConfigFile()
 
 	contextExists := false
 	for _, context := range config.Contexts {
@@ -68,7 +71,7 @@ func runUseContext(cmd *cobra.Command, args []string) {
 }
 
 func runGetContexts(cmd *cobra.Command, args []string) {
-	config := parseConfigFile()
+	config := ParseConfigFile()
 	for _, context := range config.Contexts {
 		contextName := context.Name
 		if contextName == config.CurrentContext {
@@ -92,7 +95,7 @@ func runGetContexts(cmd *cobra.Command, args []string) {
 }
 
 func runCurrentContext(cmd *cobra.Command, args []string) {
-	config := parseConfigFile()
+	config := ParseConfigFile()
 	fmt.Println(config.CurrentContext)
 }
 
@@ -115,7 +118,7 @@ type Config struct {
 	Entities       map[string]Entity `mapstructure:"entities"`
 }
 
-func parseConfigFile() Config {
+func ParseConfigFile() Config {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("Error getting user's home directory: %v\n", err)

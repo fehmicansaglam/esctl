@@ -1,12 +1,27 @@
-package cmd
+package get
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/fehmicansaglam/esctl/cmd/config"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
+	"github.com/spf13/cobra"
 )
+
+var getNodesCmd = &cobra.Command{
+	Use:   "nodes",
+	Short: "Get all nodes in the Elasticsearch cluster",
+	Run: func(cmd *cobra.Command, args []string) {
+		conf := config.ParseConfigFile()
+		handleNodeLogic(conf)
+	},
+}
+
+func init() {
+	getNodesCmd.Flags().StringVar(&flagNode, "node", "", "Filter shards by node")
+}
 
 var nodeColumns = []output.ColumnDef{
 	{Header: "NAME", Type: output.Text},
@@ -27,14 +42,14 @@ var nodeColumns = []output.ColumnDef{
 	{Header: "UPTIME", Type: output.Text},
 }
 
-func handleNodeLogic(config Config) {
+func handleNodeLogic(conf config.Config) {
 	nodes, err := es.GetNodes(flagNode)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to retrieve nodes: %v\n", err)
 		os.Exit(1)
 	}
 
-	columnDefs, err := getColumnDefs(config, "node", nodeColumns)
+	columnDefs, err := getColumnDefs(conf, "node", nodeColumns)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to get column definitions:", err)
 		os.Exit(1)

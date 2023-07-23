@@ -1,12 +1,28 @@
-package cmd
+package get
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/fehmicansaglam/esctl/cmd/config"
 	"github.com/fehmicansaglam/esctl/es"
 	"github.com/fehmicansaglam/esctl/output"
+	"github.com/spf13/cobra"
 )
+
+var getTasksCmd = &cobra.Command{
+	Use:   "tasks",
+	Short: "Get tasks information",
+	Long:  `This command retrieves and displays tasks information from Elasticsearch cluster.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config := config.ParseConfigFile()
+		handleTaskLogic(config)
+	},
+}
+
+func init() {
+	getTasksCmd.Flags().StringArrayVarP(&flagActions, "actions", "a", nil, "Filter tasks by actions")
+}
 
 var taskColumns = []output.ColumnDef{
 	{Header: "NODE", Type: output.Text},
@@ -16,7 +32,7 @@ var taskColumns = []output.ColumnDef{
 	{Header: "RUNNING-TIME", Type: output.Number},
 }
 
-func handleTaskLogic(config Config) {
+func handleTaskLogic(config config.Config) {
 	tasksResponse, err := es.GetTasks(flagActions)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Failed to retrieve tasks:", err)

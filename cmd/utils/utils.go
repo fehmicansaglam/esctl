@@ -1,19 +1,19 @@
-package cmd
+package utils
 
 import "strings"
 
 const Indentation = "  "
 
-func trim(s string) string {
+func Trim(s string) string {
 	return strings.TrimSpace(s)
 }
 
-func trimAndIndent(s string) string {
-	s = trim(s)
+func TrimAndIndent(s string) string {
+	s = Trim(s)
 	lines := strings.Split(s, "\n")
 	indentedLines := make([]string, len(lines))
 	for i, line := range lines {
-		trimmed := trim(line)
+		trimmed := Trim(line)
 		indentedLines[i] = Indentation + trimmed
 	}
 	return strings.Join(indentedLines, "\n")
