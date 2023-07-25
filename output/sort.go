@@ -2,13 +2,46 @@ package output
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
+var chunkifyRegexp = regexp.MustCompile(`(\d+|\D+)`)
+
+// Chunkify splits a string into chunks of numeric and non-numeric substrings using a regular expression.
+func chunkify(s string) []string {
+	return chunkifyRegexp.FindAllString(s, -1)
+}
+
+// Returns true if the first string precedes the second one according to natural order.
 func sortText(left, right string) bool {
-	return left < right
+	chunksLeft := chunkify(left)
+	chunksRight := chunkify(right)
+
+	for i := range chunksLeft {
+		if i >= len(chunksRight) {
+			// If we reached the last chunk of right, then left is greater than right.
+			return false
+		}
+
+		if chunksLeft[i] != chunksRight[i] {
+			leftInt, leftErr := strconv.Atoi(chunksLeft[i])
+			rightInt, rightErr := strconv.Atoi(chunksRight[i])
+
+			if leftErr == nil && rightErr == nil {
+				// If both chunks are numeric, compare them as integers
+				return leftInt < rightInt
+			}
+
+			// If one or both chunks are non-numeric, perform lexicographic comparison
+			return chunksLeft[i] < chunksRight[i]
+		}
+	}
+
+	// All chunks are equal
+	return true
 }
 
 func sortNumber(left, right string) bool {

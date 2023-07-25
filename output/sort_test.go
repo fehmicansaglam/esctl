@@ -58,6 +58,38 @@ func testSort(t *testing.T, testCases []TestCase, sortFunc func(a, b string) boo
 	}
 }
 
+func TestSortText(t *testing.T) {
+	testCases := []TestCase{
+		{
+			"Sort texts in natural order",
+			[]string{
+				"cluster-10-node-1",
+				"cluster-1-node-2",
+				"cluster-1-node-10",
+				"cluster-3",
+				"cluster-2-node-5",
+				"cluster-2-node-10",
+				"cluster-1",
+				"cluster-1-node-3",
+				"cluster-2-node-1",
+			},
+			[]string{
+				"cluster-1",
+				"cluster-1-node-2",
+				"cluster-1-node-3",
+				"cluster-1-node-10",
+				"cluster-2-node-1",
+				"cluster-2-node-5",
+				"cluster-2-node-10",
+				"cluster-3",
+				"cluster-10-node-1",
+			},
+		},
+	}
+
+	testSort(t, testCases, sortText)
+}
+
 func TestSortDataSize(t *testing.T) {
 	testCases := []TestCase{
 		{
