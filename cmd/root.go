@@ -9,6 +9,7 @@ import (
 	"github.com/fehmicansaglam/esctl/cmd/count"
 	"github.com/fehmicansaglam/esctl/cmd/describe"
 	"github.com/fehmicansaglam/esctl/cmd/get"
+	"github.com/fehmicansaglam/esctl/cmd/query"
 	"github.com/fehmicansaglam/esctl/constants"
 	"github.com/fehmicansaglam/esctl/shared"
 	"github.com/spf13/cobra"
@@ -40,6 +41,7 @@ func init() {
 	rootCmd.AddCommand(count.Cmd())
 	rootCmd.AddCommand(describe.Cmd())
 	rootCmd.AddCommand(get.Cmd())
+	rootCmd.AddCommand(query.Cmd())
 }
 
 func initialize() {

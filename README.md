@@ -25,6 +25,7 @@ Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file.
   - [Describe](#describe)
   - [Count](#count)
   - [Count with Grouping](#count-with-grouping)
+  - [Query](#query)
 - [License](#license)
 
 ## Installation
@@ -464,6 +465,42 @@ This command will count the documents in the `articles` index that satisfy the t
 
 > **Note**<br>
 > If an index name is not provided to the count command with `--group-by`, all the indices will be grouped individually.
+
+### Query
+
+The `query` command allows you to execute queries against Elasticsearch.
+
+```sh
+esctl query INDEX
+```
+
+#### Flags
+
+- `--id`: Specify document IDs to fetch. Can be specified multiple times.
+
+  Example: `--id 61 --id 62`
+
+- `--term (-t)`: Term filters to apply. The format should be `field:value`. Can be specified multiple times.
+
+  Example: `--term "price:10" --term "category:electronics"`
+
+- `--size`: Specify the number of hits to return. Defaults to 1.
+
+  Example: `--size 5`
+
+#### Examples
+
+```sh
+esctl query articles
+esctl query articles --id 61
+esctl query articles --term "price:10" --size 2
+```
+
+This would respectively:
+
+- Query all documents in the `articles` index.
+- Query the `articles` index and get the document with ID `61`.
+- Query the `articles` index filtering by the term `price:10` and return 2 hits.
 
 ## License
 

@@ -66,3 +66,10 @@ func getJSONResponse(endpoint string, target interface{}) error {
 func getJSONResponseWithBody(endpoint string, target interface{}, body interface{}) error {
 	return httpRequest(http.MethodPost, endpoint, body, target, http.StatusOK)
 }
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
