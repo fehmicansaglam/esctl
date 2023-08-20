@@ -24,6 +24,7 @@ type Task struct {
 	ID                 int64                  `json:"id"`
 	Type               string                 `json:"type"`
 	Action             string                 `json:"action"`
+	Description        string                 `json:"description"`
 	StartTimeInMillis  int64                  `json:"start_time_in_millis"`
 	RunningTimeInNanos int64                  `json:"running_time_in_nanos"`
 	Cancellable        bool                   `json:"cancellable"`
@@ -33,12 +34,18 @@ type Task struct {
 }
 
 func GetTasks(actions []string) (TasksResponse, error) {
-	endpoint := "_tasks"
+	baseEndpoint := "_tasks"
+
+	values := url.Values{
+		"detailed": {"true"},
+	}
 
 	if len(actions) > 0 {
 		actionsParam := strings.Join(actions, ",")
-		endpoint += "?" + url.Values{"actions": {actionsParam}}.Encode()
+		values.Set("actions", actionsParam)
 	}
+
+	endpoint := baseEndpoint + "?" + values.Encode()
 
 	var response TasksResponse
 	if err := getJSONResponse(endpoint, &response); err != nil {

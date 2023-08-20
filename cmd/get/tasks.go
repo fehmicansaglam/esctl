@@ -28,6 +28,7 @@ var taskColumns = []output.ColumnDef{
 	{Header: "NODE", Type: output.Text},
 	{Header: "ID", Type: output.Number},
 	{Header: "ACTION", Type: output.Text},
+	{Header: "DESCRIPTION", Type: output.Text},
 	{Header: "START-TIME", Type: output.Number},
 	{Header: "RUNNING-TIME", Type: output.Number},
 }
@@ -53,6 +54,7 @@ func handleTaskLogic(config config.Config) {
 				"NODE":         task.Node,
 				"ID":           fmt.Sprintf("%d", task.ID),
 				"ACTION":       task.Action,
+				"DESCRIPTION":  task.Description,
 				"START-TIME":   fmt.Sprintf("%d", task.StartTimeInMillis),
 				"RUNNING-TIME": fmt.Sprintf("%d", task.RunningTimeInNanos),
 			}
