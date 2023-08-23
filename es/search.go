@@ -7,7 +7,7 @@ import (
 
 type JsonResponse map[string]interface{}
 
-func SearchDocuments(index string, ids []string, terms []string, size int) (JsonResponse, error) {
+func SearchDocuments(index string, ids []string, terms []string, size int, nestedPaths []string) (JsonResponse, error) {
 	endpoint := fmt.Sprintf("%s/_search", index)
 
 	filters := make([]map[string]interface{}, 0)
@@ -19,12 +19,27 @@ func SearchDocuments(index string, ids []string, terms []string, size int) (Json
 		}
 
 		field, value := parts[0], parts[1]
-		termFilter := map[string]interface{}{
-			"term": map[string]interface{}{
-				field: value,
-			},
+		if isNestedField(field, nestedPaths) {
+			nestedPath := getNestedPath(field)
+			termFilter := map[string]interface{}{
+				"nested": map[string]interface{}{
+					"path": nestedPath,
+					"query": map[string]interface{}{
+						"term": map[string]interface{}{
+							field: value,
+						},
+					},
+				},
+			}
+			filters = append(filters, termFilter)
+		} else {
+			termFilter := map[string]interface{}{
+				"term": map[string]interface{}{
+					field: value,
+				},
+			}
+			filters = append(filters, termFilter)
 		}
-		filters = append(filters, termFilter)
 	}
 
 	if len(ids) > 0 {
@@ -54,4 +69,18 @@ func SearchDocuments(index string, ids []string, terms []string, size int) (Json
 	}
 
 	return response, nil
+}
+
+func isNestedField(field string, nestedPaths []string) bool {
+	for _, path := range nestedPaths {
+		if strings.HasPrefix(field, path) {
+			return true
+		}
+	}
+	return false
+}
+
+func getNestedPath(field string) string {
+	parts := strings.Split(field, ".")
+	return strings.Join(parts[:len(parts)-1], ".")
 }

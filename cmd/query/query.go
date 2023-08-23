@@ -22,7 +22,7 @@ esctl query articles --term "price:10" --size 1`),
 	Run: func(cmd *cobra.Command, args []string) {
 		index := args[0]
 
-		response, err := es.SearchDocuments(index, flagId, flagTerm, flagSize)
+		response, err := es.SearchDocuments(index, flagId, flagTerm, flagSize, flagNested)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Failed to query:", err)
 			os.Exit(1)
@@ -38,5 +38,6 @@ func Cmd() *cobra.Command {
 func init() {
 	queryCmd.Flags().StringArrayVar(&flagId, "id", []string{}, "Document IDs to fetch")
 	queryCmd.Flags().StringArrayVarP(&flagTerm, "term", "t", []string{}, "Term filters to apply")
+	queryCmd.Flags().StringArrayVar(&flagNested, "nested", []string{}, "Nested paths")
 	queryCmd.Flags().IntVar(&flagSize, "size", 1, "Number of hits to return")
 }
