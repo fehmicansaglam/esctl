@@ -70,17 +70,3 @@ func SearchDocuments(index string, ids []string, terms []string, size int, neste
 
 	return response, nil
 }
-
-func isNestedField(field string, nestedPaths []string) bool {
-	for _, path := range nestedPaths {
-		if strings.HasPrefix(field, path) {
-			return true
-		}
-	}
-	return false
-}
-
-func getNestedPath(field string) string {
-	parts := strings.Split(field, ".")
-	return strings.Join(parts[:len(parts)-1], ".")
-}

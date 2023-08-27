@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/fehmicansaglam/esctl/shared"
 )
@@ -65,6 +66,20 @@ func getJSONResponse(endpoint string, target interface{}) error {
 
 func getJSONResponseWithBody(endpoint string, target interface{}, body interface{}) error {
 	return httpRequest(http.MethodPost, endpoint, body, target, http.StatusOK)
+}
+
+func isNestedField(field string, nestedPaths []string) bool {
+	for _, path := range nestedPaths {
+		if strings.HasPrefix(field, path) {
+			return true
+		}
+	}
+	return false
+}
+
+func getNestedPath(field string) string {
+	parts := strings.Split(field, ".")
+	return strings.Join(parts[:len(parts)-1], ".")
 }
 
 func max(a, b int) int {

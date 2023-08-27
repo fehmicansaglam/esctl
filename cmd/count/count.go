@@ -28,7 +28,7 @@ func handleCount() {
 	var counts map[string]es.GroupCount
 	var err error
 
-	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagGroupBy, flagSize, flagTimeout)
+	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagNested, flagGroupBy, flagSize, flagTimeout)
 	if err != nil {
 		fmt.Printf("Failed to get document counts: %v\n", err)
 		os.Exit(1)
@@ -69,6 +69,7 @@ func init() {
 	countCmd.Flags().StringVarP(&flagIndex, "index", "i", "", "Filter by specific indices or patterns")
 	countCmd.Flags().StringSliceVarP(&flagTerm, "term", "t", []string{}, "Term filters to apply")
 	countCmd.Flags().StringSliceVarP(&flagExists, "exists", "e", []string{}, "Exists filters to apply")
+	countCmd.Flags().StringArrayVar(&flagNested, "nested", []string{}, "Nested paths")
 	countCmd.Flags().StringVarP(&flagGroupBy, "group-by", "g", "", "Field to group the documents by")
 	countCmd.Flags().StringSliceVarP(&flagSortBy, "sort-by", "s", []string{}, "Columns to sort by (comma-separated)")
 	countCmd.Flags().IntVar(&flagSize, "size", 0, "Set max results per group")

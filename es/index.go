@@ -101,47 +101,66 @@ type CountResponse struct {
 type GroupCount map[string]int
 type IndexGroupCount map[string]GroupCount
 
-func parseTermFilter(filter string) map[string]interface{} {
-	parts := strings.SplitN(filter, ":", 2)
-	if len(parts) != 2 {
-		return nil
-	}
-	return map[string]interface{}{
-		"term": map[string]interface{}{
-			parts[0]: parts[1],
-		},
-	}
-}
+func buildFilterQueries(termFilters, existsFilters []string, nestedPaths []string) []map[string]interface{} {
+	filterQueries := make([]map[string]interface{}, 0)
+	nestedGroups := make(map[string][]map[string]interface{})
 
-func parseExistsFilter(filter string) map[string]interface{} {
-	return map[string]interface{}{
-		"exists": map[string]interface{}{
-			"field": filter,
-		},
-	}
-}
+	groupFilter := func(filter string, isTerm bool) {
+		var field, value string
+		var filterQuery map[string]interface{}
 
-func buildFilterQueries(termFilters, existsFilters []string) []map[string]interface{} {
-	filterQueries := make([]map[string]interface{}, 0, len(termFilters)+len(existsFilters))
+		if isTerm {
+			parts := strings.SplitN(filter, ":", 2)
+			if len(parts) != 2 {
+				return
+			}
+			field, value = parts[0], parts[1]
+			filterQuery = map[string]interface{}{
+				"term": map[string]interface{}{
+					field: value,
+				},
+			}
+		} else {
+			field = filter
+			filterQuery = map[string]interface{}{
+				"exists": map[string]interface{}{
+					"field": field,
+				},
+			}
+		}
+
+		if isNestedField(field, nestedPaths) {
+			nestedPath := getNestedPath(field)
+			nestedGroups[nestedPath] = append(nestedGroups[nestedPath], filterQuery)
+		} else {
+			filterQueries = append(filterQueries, filterQuery)
+		}
+	}
 
 	for _, filter := range termFilters {
-		filterQuery := parseTermFilter(filter)
-		if filterQuery != nil {
-			filterQueries = append(filterQueries, filterQuery)
-		}
+		groupFilter(filter, true)
+	}
+	for _, filter := range existsFilters {
+		groupFilter(filter, false)
 	}
 
-	for _, filter := range existsFilters {
-		filterQuery := parseExistsFilter(filter)
-		if filterQuery != nil {
-			filterQueries = append(filterQueries, filterQuery)
-		}
+	for path, groupedFilters := range nestedGroups {
+		filterQueries = append(filterQueries, map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path": path,
+				"query": map[string]interface{}{
+					"bool": map[string]interface{}{
+						"must": groupedFilters,
+					},
+				},
+			},
+		})
 	}
 
 	return filterQueries
 }
 
-func countDocumentsOfIndex(index string, termFilters []string, existsFilters []string) (int, error) {
+func countDocumentsOfIndex(index string, termFilters, existsFilters, nestedPaths []string) (int, error) {
 	endpoint := index + "/_count"
 	query := map[string]interface{}{
 		"match_all": map[string]interface{}{},
@@ -150,7 +169,7 @@ func countDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	if len(termFilters) > 0 || len(existsFilters) > 0 {
 		query = map[string]interface{}{
 			"bool": map[string]interface{}{
-				"must": buildFilterQueries(termFilters, existsFilters),
+				"must": buildFilterQueries(termFilters, existsFilters, nestedPaths),
 			},
 		}
 	}
@@ -167,7 +186,7 @@ func countDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return response.Count, nil
 }
 
-func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, groupBy string, size int, timeout string) (GroupCount, error) {
+func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, nestedPaths []string, groupBy string, size int, timeout string) (GroupCount, error) {
 	endpoint := index + "/_search"
 	query := map[string]interface{}{
 		"match_all": map[string]interface{}{},
@@ -176,7 +195,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	if len(termFilters) > 0 || len(existsFilters) > 0 {
 		query = map[string]interface{}{
 			"bool": map[string]interface{}{
-				"must": buildFilterQueries(termFilters, existsFilters),
+				"must": buildFilterQueries(termFilters, existsFilters, nestedPaths),
 			},
 		}
 	}
@@ -189,16 +208,36 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 		timeout = "1s"
 	}
 
-	body := map[string]interface{}{
-		"query": query,
-		"aggs": map[string]interface{}{
-			"group_by": map[string]interface{}{
-				"terms": map[string]interface{}{
-					"field": groupBy,
-					"size":  size,
+	isNestedGroupBy := isNestedField(groupBy, nestedPaths)
+	aggregations := make(map[string]interface{})
+
+	if isNestedGroupBy {
+		nestedPath := getNestedPath(groupBy)
+		aggregations["group_by_nested"] = map[string]interface{}{
+			"nested": map[string]interface{}{
+				"path": nestedPath,
+			},
+			"aggs": map[string]interface{}{
+				"group_by": map[string]interface{}{
+					"terms": map[string]interface{}{
+						"field": groupBy,
+						"size":  size,
+					},
 				},
 			},
-		},
+		}
+	} else {
+		aggregations["group_by"] = map[string]interface{}{
+			"terms": map[string]interface{}{
+				"field": groupBy,
+				"size":  size,
+			},
+		}
+	}
+
+	body := map[string]interface{}{
+		"query":   query,
+		"aggs":    aggregations,
 		"timeout": timeout,
 	}
 
@@ -208,17 +247,22 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	}
 
 	groupCount := make(GroupCount)
-	buckets, ok := response.Aggregations["group_by"].(map[string]interface{})
-	if ok {
-		terms, ok := buckets["buckets"].([]interface{})
-		if ok {
-			for _, term := range terms {
-				termData, ok := term.(map[string]interface{})
-				if ok {
-					key := fmt.Sprint(termData["key"])
-					count := int(termData["doc_count"].(float64))
-					groupCount[key] = count
-				}
+	var buckets map[string]interface{}
+
+	if isNestedGroupBy {
+		if nestedAgg, ok := response.Aggregations["group_by_nested"].(map[string]interface{}); ok {
+			buckets, _ = nestedAgg["group_by"].(map[string]interface{})
+		}
+	} else {
+		buckets, _ = response.Aggregations["group_by"].(map[string]interface{})
+	}
+
+	if terms, ok := buckets["buckets"].([]interface{}); ok {
+		for _, term := range terms {
+			if termData, ok := term.(map[string]interface{}); ok {
+				key := fmt.Sprint(termData["key"])
+				count := int(termData["doc_count"].(float64))
+				groupCount[key] = count
 			}
 		}
 	}
@@ -226,7 +270,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return groupCount, nil
 }
 
-func CountDocuments(index string, termFilters []string, existsFilters []string, groupBy string, size int, timeout string) (map[string]GroupCount, error) {
+func CountDocuments(index string, termFilters []string, existsFilters []string, nestedPaths []string, groupBy string, size int, timeout string) (map[string]GroupCount, error) {
 	indexCounts := make(map[string]GroupCount)
 
 	indices, err := GetIndices(index)
@@ -237,13 +281,13 @@ func CountDocuments(index string, termFilters []string, existsFilters []string, 
 	for _, index := range indices {
 		var groupCount GroupCount
 		if groupBy == "" {
-			count, err := countDocumentsOfIndex(index.Index, termFilters, existsFilters)
+			count, err := countDocumentsOfIndex(index.Index, termFilters, existsFilters, nestedPaths)
 			if err != nil {
 				return nil, err
 			}
 			groupCount = map[string]int{"": count}
 		} else {
-			groupCount, err = groupDocumentsOfIndex(index.Index, termFilters, existsFilters, groupBy, size, timeout)
+			groupCount, err = groupDocumentsOfIndex(index.Index, termFilters, existsFilters, nestedPaths, groupBy, size, timeout)
 			if err != nil {
 				return nil, err
 			}
