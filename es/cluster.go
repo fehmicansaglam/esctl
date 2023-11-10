@@ -57,9 +57,12 @@ type ClusterStats struct {
 	} `json:"indices" yaml:"indices"`
 }
 
+type ClusterSettings map[string]interface{}
+
 type Cluster struct {
-	Health ClusterHealth `json:"health"`
-	Stats  ClusterStats  `json:"stats"`
+	Health   ClusterHealth   `json:"health"`
+	Stats    ClusterStats    `json:"stats"`
+	Settings ClusterSettings `json:"settings"`
 }
 
 func GetCluster() (*Cluster, error) {
@@ -69,6 +72,10 @@ func GetCluster() (*Cluster, error) {
 	}
 
 	if err := getJSONResponse("_cluster/health", &cluster.Health); err != nil {
+		return nil, err
+	}
+
+	if err := getJSONResponse("_cluster/settings", &cluster.Settings); err != nil {
 		return nil, err
 	}
 
