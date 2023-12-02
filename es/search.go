@@ -19,8 +19,8 @@ func SearchDocuments(index string, ids []string, terms []string, size int, neste
 		}
 
 		field, value := parts[0], parts[1]
-		if isNestedField(field, nestedPaths) {
-			nestedPath := getNestedPath(field)
+		nestedPath, isNestedPath := getNestedPath(field, nestedPaths)
+		if isNestedPath {
 			termFilter := map[string]interface{}{
 				"nested": map[string]interface{}{
 					"path": nestedPath,

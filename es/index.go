@@ -129,8 +129,8 @@ func buildFilterQueries(termFilters, existsFilters []string, nestedPaths []strin
 			}
 		}
 
-		if isNestedField(field, nestedPaths) {
-			nestedPath := getNestedPath(field)
+		nestedPath, isNestedPath := getNestedPath(field, nestedPaths)
+		if isNestedPath {
 			nestedGroups[nestedPath] = append(nestedGroups[nestedPath], filterQuery)
 		} else {
 			filterQueries = append(filterQueries, filterQuery)
@@ -208,11 +208,10 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 		timeout = "1s"
 	}
 
-	isNestedGroupBy := isNestedField(groupBy, nestedPaths)
+	nestedPath, isNestedPath := getNestedPath(groupBy, nestedPaths)
 	aggregations := make(map[string]interface{})
 
-	if isNestedGroupBy {
-		nestedPath := getNestedPath(groupBy)
+	if isNestedPath {
 		aggregations["group_by_nested"] = map[string]interface{}{
 			"nested": map[string]interface{}{
 				"path": nestedPath,
@@ -249,7 +248,7 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	groupCount := make(GroupCount)
 	var buckets map[string]interface{}
 
-	if isNestedGroupBy {
+	if isNestedPath {
 		if nestedAgg, ok := response.Aggregations["group_by_nested"].(map[string]interface{}); ok {
 			buckets, _ = nestedAgg["group_by"].(map[string]interface{})
 		}

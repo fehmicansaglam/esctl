@@ -6,4 +6,5 @@ var (
 	ElasticsearchPassword string
 	ElasticsearchHost     string
 	ElasticsearchPort     int
+	Debug                 bool
 )

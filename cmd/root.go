@@ -37,6 +37,8 @@ func init() {
 	initUsernameFlag()
 	initPasswordFlag()
 
+	rootCmd.PersistentFlags().BoolVar(&shared.Debug, "debug", false, "Enable debug mode")
+
 	rootCmd.AddCommand(config.Cmd())
 	rootCmd.AddCommand(count.Cmd())
 	rootCmd.AddCommand(describe.Cmd())

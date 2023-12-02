@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/fehmicansaglam/esctl/shared"
@@ -20,14 +21,27 @@ type EsError struct {
 	Status int `json:"status"`
 }
 
+func debugLog(format string, args ...interface{}) {
+	if shared.Debug {
+		fmt.Fprintf(os.Stderr, "DEBUG: "+format+"\n", args...)
+	}
+}
+
 func httpRequest(method, endpoint string, body, target interface{}, expectedStatusCode int) error {
 	baseURL := fmt.Sprintf("%s://%s:%d/%s", shared.ElasticsearchProtocol, shared.ElasticsearchHost, shared.ElasticsearchPort, endpoint)
+
+	if shared.Debug {
+		debugLog("Request URL: %s", baseURL)
+	}
 
 	var bodyReader io.Reader
 	if body != nil {
 		bodyBytes, err := json.Marshal(body)
 		if err != nil {
 			return err
+		}
+		if shared.Debug {
+			debugLog("Request Body: %s", bodyBytes)
 		}
 		bodyReader = bytes.NewReader(bodyBytes)
 	}
@@ -68,18 +82,13 @@ func getJSONResponseWithBody(endpoint string, target interface{}, body interface
 	return httpRequest(http.MethodPost, endpoint, body, target, http.StatusOK)
 }
 
-func isNestedField(field string, nestedPaths []string) bool {
+func getNestedPath(field string, nestedPaths []string) (string, bool) {
 	for _, path := range nestedPaths {
 		if strings.HasPrefix(field, path) {
-			return true
+			return path, true
 		}
 	}
-	return false
-}
-
-func getNestedPath(field string) string {
-	parts := strings.Split(field, ".")
-	return strings.Join(parts[:len(parts)-1], ".")
+	return "", false
 }
 
 func max(a, b int) int {
