@@ -15,10 +15,16 @@ func extractFieldAndValue(term string) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
-func SearchDocuments(index string, ids []string, terms []string, size int, nestedPaths []string) (JsonResponse, error) {
-	endpoint := fmt.Sprintf("%s/_search", index)
-
-	filters := make([]map[string]interface{}, 0)
+func SearchDocuments(
+	index string,
+	ids []string,
+	terms []string,
+	from int,
+	size int,
+	nestedPaths []string,
+	sortFields []string,
+) (JsonResponse, error) {
+	var filters []map[string]interface{}
 
 	for _, term := range terms {
 		field, value, err := extractFieldAndValue(term)
@@ -64,10 +70,24 @@ func SearchDocuments(index string, ids []string, terms []string, size int, neste
 	}
 
 	requestBody := map[string]interface{}{
+		"from":  from,
 		"size":  max(size, len(ids)),
 		"query": query,
 	}
 
+	if len(sortFields) > 0 {
+		sorts := make([]map[string]string, len(sortFields))
+		for i, sortField := range sortFields {
+			field, order, err := extractFieldAndValue(sortField)
+			if err != nil {
+				return nil, err
+			}
+			sorts[i] = map[string]string{field: order}
+		}
+		requestBody["sort"] = sorts
+	}
+
+	endpoint := fmt.Sprintf("%s/_search", index)
 	var response JsonResponse
 	err := getJSONResponseWithBody(endpoint, &response, requestBody)
 	if err != nil {
