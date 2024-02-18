@@ -82,6 +82,10 @@ func getJSONResponseWithBody(endpoint string, target interface{}, body interface
 	return httpRequest(http.MethodPost, endpoint, body, target, http.StatusOK)
 }
 
+func postWithoutBody(endpoint string, target interface{}) error {
+	return httpRequest(http.MethodPost, endpoint, nil, target, http.StatusOK)
+}
+
 func getNestedPath(field string, nestedPaths []string) (string, bool) {
 	for _, path := range nestedPaths {
 		if strings.HasPrefix(field, path) {

@@ -9,4 +9,5 @@ var (
 	flagSortBy  []string
 	flagTerm    []string
 	flagTimeout string
+	flagRefresh bool
 )

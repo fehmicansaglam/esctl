@@ -28,7 +28,7 @@ func handleCount() {
 	var counts map[string]es.GroupCount
 	var err error
 
-	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagNested, flagGroupBy, flagSize, flagTimeout)
+	counts, err = es.CountDocuments(flagIndex, flagTerm, flagExists, flagNested, flagGroupBy, flagSize, flagTimeout, flagRefresh)
 	if err != nil {
 		fmt.Printf("Failed to get document counts: %v\n", err)
 		os.Exit(1)
@@ -74,4 +74,5 @@ func init() {
 	countCmd.Flags().StringSliceVarP(&flagSortBy, "sort-by", "s", []string{}, "Columns to sort by (comma-separated)")
 	countCmd.Flags().IntVar(&flagSize, "size", 0, "Set max results per group")
 	countCmd.Flags().StringVar(&flagTimeout, "timeout", "", "Set timeout for group by query")
+	countCmd.Flags().BoolVar(&flagRefresh, "refresh", false, "Refresh index before counting documents")
 }

@@ -186,7 +186,23 @@ func countDocumentsOfIndex(index string, termFilters, existsFilters, nestedPaths
 	return response.Count, nil
 }
 
-func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []string, nestedPaths []string, groupBy string, size int, timeout string) (GroupCount, error) {
+type RefreshResponse map[string]interface{}
+
+func RefreshIndices(target string) error {
+	endpoint := target + "/_refresh"
+	var response RefreshResponse
+	return postWithoutBody(endpoint, &response)
+}
+
+func groupDocumentsOfIndex(
+	index string,
+	termFilters []string,
+	existsFilters []string,
+	nestedPaths []string,
+	groupBy string,
+	size int,
+	timeout string,
+) (GroupCount, error) {
 	endpoint := index + "/_search"
 	query := map[string]interface{}{
 		"match_all": map[string]interface{}{},
@@ -269,14 +285,29 @@ func groupDocumentsOfIndex(index string, termFilters []string, existsFilters []s
 	return groupCount, nil
 }
 
-func CountDocuments(index string, termFilters []string, existsFilters []string, nestedPaths []string, groupBy string, size int, timeout string) (map[string]GroupCount, error) {
-	indexCounts := make(map[string]GroupCount)
+func CountDocuments(
+	index string,
+	termFilters []string,
+	existsFilters []string,
+	nestedPaths []string,
+	groupBy string,
+	size int,
+	timeout string,
+	refresh bool,
+) (map[string]GroupCount, error) {
+	if refresh {
+		err := RefreshIndices(index)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	indices, err := GetIndices(index)
 	if err != nil {
 		return nil, err
 	}
 
+	indexCounts := make(map[string]GroupCount)
 	for _, index := range indices {
 		var groupCount GroupCount
 		if groupBy == "" {
