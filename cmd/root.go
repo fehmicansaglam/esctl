@@ -37,6 +37,7 @@ func init() {
 	initUsernameFlag()
 	initPasswordFlag()
 
+	rootCmd.PersistentFlags().StringVar(&shared.Context, "context", "", "Override context")
 	rootCmd.PersistentFlags().BoolVar(&shared.Debug, "debug", false, "Enable debug mode")
 
 	rootCmd.AddCommand(config.Cmd())
@@ -58,13 +59,20 @@ func readContextFromConfig(conf config.Config) {
 		fmt.Println("Error: No contexts defined in the configuration.")
 		os.Exit(1)
 	}
-	if conf.CurrentContext == "" {
-		conf.CurrentContext = conf.Contexts[0].Name
+
+	var context string
+
+	if shared.Context != "" {
+		context = shared.Context
+	} else if conf.CurrentContext != "" {
+		context = conf.CurrentContext
+	} else {
+		context = conf.Contexts[0].Name
 	}
 
 	clusterFound := false
 	for _, cluster := range conf.Contexts {
-		if cluster.Name == conf.CurrentContext {
+		if cluster.Name == context {
 			shared.ElasticsearchProtocol = cluster.Protocol
 			if shared.ElasticsearchProtocol == "" {
 				shared.ElasticsearchProtocol = constants.DefaultElasticsearchProtocol

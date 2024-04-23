@@ -1,6 +1,7 @@
 package shared
 
 var (
+	Context               string
 	ElasticsearchProtocol string
 	ElasticsearchUsername string
 	ElasticsearchPassword string
